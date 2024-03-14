@@ -1,0 +1,7 @@
+names:
+  0: Person
+  1: Human face
+path: /kaggle/working/FaceRecognitionData/dataset
+test: ./images/test/
+train: ./images/train/
+val: ./images/val/
