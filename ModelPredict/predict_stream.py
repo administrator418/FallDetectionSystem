@@ -37,12 +37,10 @@ class ObjectDetection:
     def __init__(self, capture_index):
         # default parameters
         self.capture_index = capture_index
+
+        # flag information
         self.flag = {
             'fall': False,
-            'fall_notify': False,
-            'fall_time': -1,
-            'intrude_notify': False,
-            'test': False
         }
 
         # model information
@@ -50,8 +48,14 @@ class ObjectDetection:
 
         # visual information
         self.annotator = None
-        self.start_time = 0
-        self.end_time = 0
+
+        # time information
+        self.start_time_total = 0
+        self.end_time_total = 0
+        self.start_time_cycle = 0
+        self.end_time_cycle = 0
+        self.start_time_fall = 0
+        self.end_time_fall = 0
 
         # device information
         self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
@@ -61,8 +65,8 @@ class ObjectDetection:
         return results
 
     def display_fps(self, im0):
-        self.end_time = time.time()
-        fps = 1 / np.round(self.end_time - self.start_time, 2)
+        self.end_time_cycle = time.time()
+        fps = 1 / np.round(self.end_time_cycle - self.start_time_cycle, 2)
         text = f'FPS: {int(fps)}'
         text_size = cv2.getTextSize(text, cv2.FONT_HERSHEY_SIMPLEX, 1.0, 2)[0]
         gap = 10
@@ -79,6 +83,9 @@ class ObjectDetection:
             class_ids.append(cls)
             self.annotator.box_label(box, label=names[int(cls)], color=colors(int(cls), True))
         return im0, class_ids
+    
+    def fall_time(self):
+        return
 
     def __call__(self):
         cap = cv2.VideoCapture(self.capture_index)
@@ -87,7 +94,7 @@ class ObjectDetection:
         cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
         frame_count = 0
         while True:
-            self.start_time = time.time()
+            self.start_time_cycle = time.time()
             ret, im0 = cap.read()
             assert ret
             results = self.predict(im0)
@@ -104,7 +111,7 @@ class ObjectDetection:
                         send_email(to_email, from_email, 'test')
                         self.flag['test'] = True
             #else:
-                #self.email_sent = False
+                
 
             self.display_fps(im0)
             cv2.imshow('Fall Detection', im0)
