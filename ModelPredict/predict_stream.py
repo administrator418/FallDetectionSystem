@@ -44,7 +44,7 @@ class ObjectDetection:
         }
 
         # model information
-        self.model = YOLO("./ModelPredict/yolov8n_fall.pt")
+        self.model = YOLO("./ModelPredict/yolov8n_face.pt")
 
         # visual information
         self.annotator = None
@@ -100,17 +100,17 @@ class ObjectDetection:
             results = self.predict(im0)
             im0, class_ids = self.plot_bboxes(results, im0)
 
-            if 1 in class_ids:  # Only send email If not sent before
-                if not self.flag['fall_notify']:
-                    if self.flag['fall_time'] == -1:
-                        self.flag['fall_time'] = time.time()
-                    elif time.time() - self.flag['fall_time'] > 10:
-                        send_email(to_email, from_email, 'fall')
-                        self.flag['fall_notify'] = True
-                    elif not self.flag['test']:
-                        send_email(to_email, from_email, 'test')
-                        self.flag['test'] = True
-            #else:
+            # if 1 in class_ids:  # Only send email If not sent before
+            #     if not self.flag['fall_notify']:
+            #         if self.flag['fall_time'] == -1:
+            #             self.flag['fall_time'] = time.time()
+            #         elif time.time() - self.flag['fall_time'] > 10:
+            #             send_email(to_email, from_email, 'fall')
+            #             self.flag['fall_notify'] = True
+            #         elif not self.flag['test']:
+            #             send_email(to_email, from_email, 'test')
+            #             self.flag['test'] = True
+            # #else:
                 
 
             self.display_fps(im0)
