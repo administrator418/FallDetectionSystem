@@ -2,10 +2,10 @@ from PIL import Image
 from ultralytics import YOLO
 
 # Load model
-model = YOLO('./ModelPredict/yolov8n_fall.pt')
+model = YOLO('./ModelPredict/yolov8n_fall2.pt')
 
 # Run inference
-results = model('./ModelPredict/TestData/images/fall(1).jpg')  # results list
+results = model('./ModelPredict/TestData/images/fall(2).jpg')  # results list
 
 # Show the results
 for r in results:

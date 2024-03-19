@@ -44,7 +44,7 @@ class ObjectDetection:
         }
 
         # model information
-        self.model = YOLO("./ModelPredict/yolov8n_face.pt")
+        self.model = YOLO("./ModelPredict/yolov8n_fall2.pt")
 
         # visual information
         self.annotator = None
