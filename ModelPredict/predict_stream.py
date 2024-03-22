@@ -9,29 +9,35 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
 password = "tpymueebnzojchcf"
-from_email = "jaydentang895@qq.com"  # must match the email used to generate the password
+from_email = (
+    "jaydentang895@qq.com"  # must match the email used to generate the password
+)
 to_email = "jaydentang895@qq.com"  # receiver email
 
-server = smtplib.SMTP('smtp.qq.com:587')
+server = smtplib.SMTP("smtp.qq.com:587")
 server.starttls()
 server.login(from_email, password)
 
+
 def send_email(to_email, from_email, warntype):
     message = MIMEMultipart()
-    message['From'] = from_email
-    message['To'] = to_email
-    message['Subject'] = "警告！"
-    
-    # Add in the message body
-    if warntype == 'fall':
-        message_body = '老人摔倒了！' + time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
-    elif warntype == 'intrude':
-        message_body = '有人闯入！'
-    elif warntype == 'test':
-        message_body = '测试！' + time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+    message["From"] = from_email
+    message["To"] = to_email
+    message["Subject"] = "警告！"
 
-    message.attach(MIMEText(message_body, 'plain'))
+    # Add in the message body
+    if warntype == "fall":
+        message_body = "老人摔倒了！" + time.strftime(
+            "%Y-%m-%d %H:%M:%S", time.localtime()
+        )
+    elif warntype == "intrude":
+        message_body = "有人闯入！"
+    elif warntype == "test":
+        message_body = "测试！" + time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+
+    message.attach(MIMEText(message_body, "plain"))
     server.sendmail(from_email, to_email, message.as_string())
+
 
 class ObjectDetection:
     def __init__(self, capture_index):
@@ -40,7 +46,7 @@ class ObjectDetection:
 
         # flag information
         self.flag = {
-            'fall': False,
+            "fall": False,
         }
 
         # model information
@@ -58,7 +64,7 @@ class ObjectDetection:
         self.end_time_fall = 0
 
         # device information
-        self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
+        self.device = "cuda" if torch.cuda.is_available() else "cpu"
 
     def predict(self, im0):
         results = self.model(im0)
@@ -67,10 +73,16 @@ class ObjectDetection:
     def display_fps(self, im0):
         self.end_time_cycle = time.time()
         fps = 1 / np.round(self.end_time_cycle - self.start_time_cycle, 2)
-        text = f'FPS: {int(fps)}'
+        text = f"FPS: {int(fps)}"
         text_size = cv2.getTextSize(text, cv2.FONT_HERSHEY_SIMPLEX, 1.0, 2)[0]
         gap = 10
-        cv2.rectangle(im0, (20 - gap, 70 - text_size[1] - gap), (20 + text_size[0] + gap, 70 + gap), (255, 255, 255), -1)
+        cv2.rectangle(
+            im0,
+            (20 - gap, 70 - text_size[1] - gap),
+            (20 + text_size[0] + gap, 70 + gap),
+            (255, 255, 255),
+            -1,
+        )
         cv2.putText(im0, text, (20, 70), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0, 0, 0), 2)
 
     def plot_bboxes(self, results, im0):
@@ -81,9 +93,11 @@ class ObjectDetection:
         names = results[0].names
         for box, cls in zip(boxes, clss):
             class_ids.append(cls)
-            self.annotator.box_label(box, label=names[int(cls)], color=colors(int(cls), True))
+            self.annotator.box_label(
+                box, label=names[int(cls)], color=colors(int(cls), True)
+            )
         return im0, class_ids
-    
+
     def fall_time(self):
         return
 
@@ -111,16 +125,16 @@ class ObjectDetection:
             #             send_email(to_email, from_email, 'test')
             #             self.flag['test'] = True
             # #else:
-                
 
             self.display_fps(im0)
-            cv2.imshow('Fall Detection', im0)
+            cv2.imshow("Fall Detection", im0)
             frame_count += 1
-            if cv2.waitKey(5) & 0xFF == ord('q'):
+            if cv2.waitKey(5) & 0xFF == ord("q"):
                 break
         cap.release()
         cv2.destroyAllWindows()
         server.quit()
+
 
 detector = ObjectDetection(capture_index=1)
 detector()
