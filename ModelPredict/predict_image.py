@@ -1,15 +1,23 @@
 from PIL import Image
 from ultralytics import YOLO
 
-# Load model
-model = YOLO("./ModelPredict/yolov8n_fall2.pt")
 
-# Run inference
-results = model("./ModelPredict/TestData/images/fall(2).jpg")  # results list
+def predict_image(filepath):
+    # 导入模型
+    model_fall = YOLO("yolov8n_fall2.pt")
+    model_face = YOLO("yolov8n_face.pt")
 
-# Show the results
-for r in results:
-    im_array = r.plot()  # plot a BGR numpy array of predictions
-    im = Image.fromarray(im_array[..., ::-1])  # RGB PIL image
-    im.show()  # show image
-    im.save("./ModelPredict/results.jpg")  # save image
+    # 预测
+    results_fall = model_fall(filepath)
+    results_face = model_face(filepath)
+
+    # 生成图片
+    for r in results_fall:
+        im_array_fall = r.plot()  # plot a BGR numpy array of predictions
+        im_fall = Image.fromarray(im_array_fall[..., ::-1])  # RGB PIL image
+        im_fall.show()
+
+    for r in results_face:
+        im_array_face = r.plot()
+        im_face = Image.fromarray(im_array_face[..., ::-1])
+        im_face.show()
