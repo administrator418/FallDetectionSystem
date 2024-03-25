@@ -1,8 +1,7 @@
-from PIL import Image
-from ultralytics import YOLO
-
-
 def predict_image(filepath):
+    from PIL import Image
+    from ultralytics import YOLO
+
     # 导入模型
     model_fall = YOLO("yolov8n_fall2.pt")
     model_face = YOLO("yolov8n_face.pt")
