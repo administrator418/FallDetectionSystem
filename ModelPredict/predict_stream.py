@@ -2,13 +2,14 @@ import torch
 import numpy as np
 import cv2
 import time
+import os
 from ultralytics import YOLO
 from ultralytics.utils.plotting import Annotator, colors
 import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from PIL import Image
-from facenet import Facenet
+from predict_facenet import FaceNet
 
 password = "tpymueebnzojchcf"
 from_email = (
@@ -93,22 +94,26 @@ class ObjectDetection:
         boxes = results[0].boxes.xyxy.cpu()
         clss = results[0].boxes.cls.cpu().tolist()
         names = results[0].names
-        print(names)
+        face_imwrite_step = 10
+        cycle_num = 0
+        os.makedirs("./ModelPredict/TestData/temp_face_images", exist_ok=True)
         for box, cls in zip(boxes, clss):
             flag = [-1, {0: 'Person', 1: 'jayden'}]
+            cycle_num += 1
             if int(cls) == 1:
                 box_list = box.tolist()
                 face = im0[int(box_list[1]) : int(box_list[3]), int(box_list[0]) : int(box_list[2])]
+                if cycle_num % face_imwrite_step == 0:
+                    cv2.imwrite(f"./ModelPredict/TestData/temp_face_images/face_{cycle_num}.jpg", face)
                 face_img = Image.fromarray(np.uint8(face))
-                jayden_face = Image.open("./ModelPredict/jayden.jpg")
-                facenet_model = Facenet()
-                probability = facenet_model.detect_image(jayden_face, face_img)
+                goal_face = Image.open("./ModelPredict/TestData/images/goal.jpg")
+                facenet_model = FaceNet()
+                probability = facenet_model.detect_image(goal_face, face_img)
                 if probability < 1.4:
                     flag[0] = 1
             
             class_ids.append(cls)
             self.annotator.box_label(
-                #box,label = names[int(cls)] if flag == -1 else "jayden",
                 box, label=names[int(cls)] if flag[0] == -1 else flag[1][int(cls)], color=colors(int(cls), True)
             )
 
