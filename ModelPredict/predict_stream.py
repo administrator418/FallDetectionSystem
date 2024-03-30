@@ -94,7 +94,7 @@ class ObjectDetection:
         boxes = results[0].boxes.xyxy.cpu()
         clss = results[0].boxes.cls.cpu().tolist()
         names = results[0].names
-        face_imwrite_step = 10
+        face_imwrite_step = 100
         cycle_num = 0
         os.makedirs("./ModelPredict/TestData/temp_face_images", exist_ok=True)
         for box, cls in zip(boxes, clss):
