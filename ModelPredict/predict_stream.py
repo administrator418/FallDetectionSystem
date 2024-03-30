@@ -93,25 +93,25 @@ class ObjectDetection:
         boxes = results[0].boxes.xyxy.cpu()
         clss = results[0].boxes.cls.cpu().tolist()
         names = results[0].names
+        print(names)
         for box, cls in zip(boxes, clss):
-            flag = -1
+            flag = [-1, {0: 'Person', 1: 'jayden'}]
             if int(cls) == 1:
                 box_list = box.tolist()
                 face = im0[int(box_list[1]) : int(box_list[3]), int(box_list[0]) : int(box_list[2])]
                 face_img = Image.fromarray(np.uint8(face))
-                jayden_face = Image.open("jayden.jpg")
+                jayden_face = Image.open("./ModelPredict/jayden.jpg")
                 facenet_model = Facenet()
                 probability = facenet_model.detect_image(jayden_face, face_img)
                 if probability < 1.4:
-                    flag = 1
+                    flag[0] = 1
             
             class_ids.append(cls)
-            print(names[int(cls)])
             self.annotator.box_label(
-                
                 #box,label = names[int(cls)] if flag == -1 else "jayden",
-                box, label=names[int(cls)], color=colors(int(cls), True)
+                box, label=names[int(cls)] if flag[0] == -1 else flag[1][int(cls)], color=colors(int(cls), True)
             )
+
 
         return im0, class_ids
 
