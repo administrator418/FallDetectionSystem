@@ -6,12 +6,13 @@ from predict_facenet import FaceNet
 if __name__ == "__main__":
     model = FaceNet()
     
-    goal_data = "./ModelPredict/TestData/face_images/goal.jpg"
-    test_data = "./ModelPredict/TestData/face_images"
+    goal_data = "./ModelPredict/TestData/images/goal.jpg"
+    test_data = "/ModelPredict/TestData/temp_face_images"
 
     probability_max = -1
+    probability_max_image = -1
 
-    for i in os.listdir(test_data):
+    for i in os.listdir("." + test_data):
         image_1 = os.getcwd() + test_data + "/" + i
         try:
             image_1 = Image.open(image_1)
@@ -30,5 +31,6 @@ if __name__ == "__main__":
         
         if probability > probability_max:
             probability_max = probability
+            probability_max_image = i
 
-    print(probability_max)
+    print(probability_max, probability_max_image)

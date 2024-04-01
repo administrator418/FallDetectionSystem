@@ -21,7 +21,6 @@ server = smtplib.SMTP("smtp.qq.com:587")
 server.starttls()
 server.login(from_email, password)
 
-
 def send_email(to_email, from_email, warntype):
     message = MIMEMultipart()
     message["From"] = from_email
@@ -69,6 +68,9 @@ class ObjectDetection:
         # device information
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
 
+        # 循环次数
+        self.face_cycle_num = 0
+
     def predict(self, im0):
         results = self.model(im0)
         return results
@@ -94,23 +96,23 @@ class ObjectDetection:
         boxes = results[0].boxes.xyxy.cpu()
         clss = results[0].boxes.cls.cpu().tolist()
         names = results[0].names
-        face_imwrite_step = 100
-        cycle_num = 0
+        face_imwrite_step = 2
         os.makedirs("./ModelPredict/TestData/temp_face_images", exist_ok=True)
         for box, cls in zip(boxes, clss):
             flag = [-1, {0: 'Person', 1: 'jayden'}]
-            cycle_num += 1
-            if int(cls) == 1:
-                box_list = box.tolist()
-                face = im0[int(box_list[1]) : int(box_list[3]), int(box_list[0]) : int(box_list[2])]
-                if cycle_num % face_imwrite_step == 0:
-                    cv2.imwrite(f"./ModelPredict/TestData/temp_face_images/face_{cycle_num}.jpg", face)
-                face_img = Image.fromarray(np.uint8(face))
-                goal_face = Image.open("./ModelPredict/TestData/images/goal.jpg")
-                facenet_model = FaceNet()
-                probability = facenet_model.detect_image(goal_face, face_img)
-                if probability < 1.4:
-                    flag[0] = 1
+            # if int(cls) == 1:
+            #     self.face_cycle_num += 1
+            #     box_list = box.tolist()
+            #     face = im0[int(box_list[1]) : int(box_list[3]), int(box_list[0]) : int(box_list[2])]
+            #     if self.face_cycle_num % face_imwrite_step == 0:
+            #         print(f"Writing face_{self.face_cycle_num}.jpg")
+            #         cv2.imwrite(f"./ModelPredict/TestData/temp_face_images/face_{self.face_cycle_num}.jpg", face)
+            #     face_img = Image.fromarray(np.uint8(face))
+            #     goal_face = Image.open("./ModelPredict/TestData/images/goal.jpg")
+            #     facenet_model = FaceNet()
+            #     probability = facenet_model.detect_image(goal_face, face_img)
+            #     if probability < 1.2:
+            #         flag[0] = 1
             
             class_ids.append(cls)
             self.annotator.box_label(
