@@ -1,0 +1,6 @@
+names:
+  0: Person
+path: /kaggle/working/dataset/open-images-v7-person-yolo
+test: ./images/test/
+train: ./images/train/
+val: ./images/val/
