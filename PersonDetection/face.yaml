@@ -1,6 +1,0 @@
-names:
-  0: Person
-path: /kaggle/input/open-images-v7-person-yolo/open-images-v7-person-yolo
-test: ./images/test/
-train: ./images/train/
-val: ./images/val/
