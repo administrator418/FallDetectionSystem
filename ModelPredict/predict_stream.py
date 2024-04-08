@@ -100,16 +100,16 @@ class PredictStream:
                 face = im0[int(box[1]) : int(box[3]), int(box[0]) : int(box[2])]
                 
                 # # 保存一些人脸图片
-                # os.makedirs(f"{cu_path}/goals_pre", exist_ok=True)
+                # os.makedirs(f"{cu_path}/PredictData/goals_pre", exist_ok=True)
                 # if self.frame_count % self.face_imwrite_step == 0:
                 #     self.face_imwrite_num += 1
-                #     cv2.imwrite(f"{cu_path}/goals_pre/face_{self.frame_count}.jpg", face)
+                #     cv2.imwrite(f"{cu_path}/PredictData/goals_pre/face_{self.frame_count}.jpg", face)
                 
                 # 将人脸信息与目标人脸进行比对
                 facenet_model = FaceNet()
                 face_img = Image.fromarray(np.uint8(face))
-                for i in os.listdir(f"{cu_path}/goals"):
-                    goal_face = Image.open(f"{cu_path}/goals/{i}")
+                for i in os.listdir(f"{cu_path}/PredictData/goals"):
+                    goal_face = Image.open(f"{cu_path}/PredictData/goals/{i}")
                     probability = facenet_model.detect_image(goal_face, face_img)
                     if probability < 1.2:
                         names[3] = i[:-4]
@@ -170,7 +170,7 @@ class PredictStream:
             self.display_fps(im0)
 
             # 显示视频帧
-            cv2.imshow("Fall Detection", im0)
+            cv2.imshow("Fall Detection System", im0)
 
             # 读取键盘输入,如果输入为q,则退出
             if cv2.waitKey(5) & 0xFF == ord("q"):

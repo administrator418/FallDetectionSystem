@@ -1,8 +1,5 @@
-import sys
-import os
-sys.path.append(os.getcwd() + "/ModelPredict")
 from Ui_falldetection import Ui_MainWindow
-from predict_image import predict_image
+from ModelPredict.predict_image import predict_image
 from PySide6.QtWidgets import QApplication, QMainWindow, QPushButton, QFileDialog
 
 class MainWindow(QMainWindow, Ui_MainWindow):
