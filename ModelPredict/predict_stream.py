@@ -37,11 +37,12 @@ class PredictStream:
         self.time_cycle_start = 0
         self.time_cycle_end = 0
 
-        # 循环次数
-        self.cycle_num = 0
+        # 帧数信息
+        self.frame_count = 0
 
-        # 人脸信息保存间隔
-        self,face_imwrite_step = 2
+        # 人脸信息保存
+        self.face_imwrite_step = 2
+        self.face_imwrite_num = 0
 
         # 人物信息
         self.person = {}
@@ -78,49 +79,63 @@ class PredictStream:
         text = f"FPS: {int(fps)}"
         text_size = cv2.getTextSize(text, cv2.FONT_HERSHEY_SIMPLEX, 1.0, 2)[0]
         gap = 10
-        cv2.rectangle(
-            im0,
-            (20 - gap, 70 - text_size[1] - gap),
-            (20 + text_size[0] + gap, 70 + gap),
-            (255, 255, 255),
-            -1,
-        )
+        cv2.rectangle(im0, (20 - gap, 70 - text_size[1] - gap), (20 + text_size[0] + gap, 70 + gap), (255, 255, 255), -1)
         cv2.putText(im0, text, (20, 70), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0, 0, 0), 2)
 
-    def plot_bboxes(self, results_fall, results_face, im0):
+    def plot_bboxes(self, results, im0):
         class_ids = []
-        self.annotator = Annotator(im0, 3, results_face[0].names)
-        boxes = results_face[0].boxes.xyxy.cpu()
-        clss = results_face[0].boxes.cls.cpu().tolist()
-        names = results_face[0].names
-        face_imwrite_step = 2
-        os.makedirs("./ModelPredict/TestData/temp_face_images", exist_ok=True)
+
+        boxes = []
+        clss = []
+        names = {0: "up", 1: "bending", 2:"down", 3: "face"}
+
+        result_face = results[1]
+        boxes_face = result_face[0].boxes.xyxy.cpu().tolist()
+        clss_face = result_face[0].boxes.cls.cpu().tolist()
+
+        # 读取目标人脸,检测人脸
+        for box, cls in zip(boxes_face, clss_face):
+            if int(cls) == 1:
+                # 获得人脸信息,格式为BGR三维数组
+                face = im0[int(box[1]) : int(box[3]), int(box[0]) : int(box[2])]
+                
+                # # 保存一些人脸图片
+                # os.makedirs(f"{cu_path}/goals_pre", exist_ok=True)
+                # if self.frame_count % self.face_imwrite_step == 0:
+                #     self.face_imwrite_num += 1
+                #     cv2.imwrite(f"{cu_path}/goals_pre/face_{self.frame_count}.jpg", face)
+                
+                # 将人脸信息与目标人脸进行比对
+                facenet_model = FaceNet()
+                face_img = Image.fromarray(np.uint8(face))
+                for i in os.listdir(f"{cu_path}/goals"):
+                    goal_face = Image.open(f"{cu_path}/goals/{i}")
+                    probability = facenet_model.detect_image(goal_face, face_img)
+                    if probability < 1.2:
+                        names[3] = i[:-4]
+                
+                # 将人脸框信息写入boxes, clss中
+                boxes.append(box)
+                clss.append(3)
+
+        self.annotator = Annotator(im0, 3, names)
+
+        result_fall = results[0]
+        boxes_fall = result_fall[0].boxes.xyxy.cpu()
+        clss_fall = result_fall[0].boxes.cls.cpu().tolist()
+
+        for box, cls in zip(boxes_fall, clss_fall):
+            #class_ids.append(cls)
+            boxes.append(box)
+            clss.append(cls)
+        
         for box, cls in zip(boxes, clss):
-            flag = [-1, {0: 'Person', 1: 'jayden'}]
-            # if int(cls) == 1:
-            #     self.face_cycle_num += 1
-            #     box_list = box.tolist()
-            #     face = im0[int(box_list[1]) : int(box_list[3]), int(box_list[0]) : int(box_list[2])]
-            #     if self.face_cycle_num % face_imwrite_step == 0:
-            #         print(f"Writing face_{self.face_cycle_num}.jpg")
-            #         cv2.imwrite(f"./ModelPredict/TestData/temp_face_images/face_{self.face_cycle_num}.jpg", face)
-            #     face_img = Image.fromarray(np.uint8(face))
-            #     goal_face = Image.open("./ModelPredict/TestData/images/goal.jpg")
-            #     facenet_model = FaceNet()
-            #     probability = facenet_model.detect_image(goal_face, face_img)
-            #     if probability < 1.2:
-            #         flag[0] = 1
-            
-            class_ids.append(cls)
-            self.annotator.box_label(
-                box, label=names[int(cls)] if flag[0] == -1 else flag[1][int(cls)], color=colors(int(cls), True)
-            )
-
-
+            self.annotator.box_label(box, label=names[int(cls)], color=colors(int(cls), True))
+        
         return im0, class_ids
-
-    def fall_time(self):
-        return
+    
+    def fall_detect(self):
+        pass
 
     def __call__(self):
         # 从摄像头获取视频流
@@ -139,33 +154,32 @@ class PredictStream:
             ret, im0 = cap.read()
             assert ret
 
+            # 记录帧数
+            self.frame_count += 1
+
             # 预测
-            results_fall, results_face = self.predict(im0)
+            results = self.predict(im0)
 
             # 画框
-            im0 = self.plot_bboxes(results_fall, results_face, im0)
+            im0 = self.plot_bboxes(results, im0)
 
-            # if 1 in class_ids:  # Only send email If not sent before
-            #     if not self.flag['fall_notify']:
-            #         if self.flag['fall_time'] == -1:
-            #             self.flag['fall_time'] = time.time()
-            #         elif time.time() - self.flag['fall_time'] > 10:
-            #             send_email(to_email, from_email, 'fall')
-            #             self.flag['fall_notify'] = True
-            #         elif not self.flag['test']:
-            #             send_email(to_email, from_email, 'test')
-            #             self.flag['test'] = True
-            # #else:
+            # 判断是否有人摔倒,并发送报警信息
+            self.fall_detect()
 
+            # 显示FPS
             self.display_fps(im0)
+
+            # 显示视频帧
             cv2.imshow("Fall Detection", im0)
-            frame_count += 1
+
+            # 读取键盘输入,如果输入为q,则退出
             if cv2.waitKey(5) & 0xFF == ord("q"):
                 break
+        
+        # 释放摄像头,关闭窗口,关闭邮件服务器
         cap.release()
         cv2.destroyAllWindows()
         self.server.quit()
-
 
 detector = PredictStream()
 detector()

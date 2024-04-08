@@ -33,6 +33,7 @@ class ObjectDetection:
         # cycle number
         self.cycle_num = 0
         self.face_imwrite_step = 2
+        self.face_imwrite_num = 0
 
     def predict(self, im0):
         results = [self.model_fall(im0), self.model_face(im0)]
@@ -46,9 +47,6 @@ class ObjectDetection:
         gap = 10
         cv2.rectangle(im0, (20 - gap, 70 - text_size[1] - gap), (20 + text_size[0] + gap, 70 + gap), (255, 255, 255), -1)
         cv2.putText(im0, text, (20, 70), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0, 0, 0), 2)
-
-    def faceidentify(self):
-        pass
     
     def plot_bboxes(self, results, im0):
         class_ids = []
@@ -68,9 +66,10 @@ class ObjectDetection:
                 face = im0[int(box[1]) : int(box[3]), int(box[0]) : int(box[2])]
                 
                 # # 保存一些人脸图片
+                # os.makedirs(f"{cu_path}/goals_pre", exist_ok=True)
                 # if self.cycle_num % self.face_imwrite_step == 0:
-                #     print(f"Writing face_{self.cycle_num}.jpg")
-                #     cv2.imwrite(f"./ModelPredict/face_images/face_{self.cycle_num}.jpg", face)
+                #     self.face_imwrite_num += 1
+                #     cv2.imwrite(f"{cu_path}/goals_pre/face_{self.cycle_num}.jpg", face)
                 
                 # 将人脸信息与目标人脸进行比对
                 facenet_model = FaceNet()
