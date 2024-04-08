@@ -10,74 +10,71 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from PIL import Image
 from predict_facenet import FaceNet
-
-password = "tpymueebnzojchcf"
-from_email = (
-    "jaydentang895@qq.com"  # must match the email used to generate the password
-)
-to_email = "jaydentang895@qq.com"  # receiver email
-
-server = smtplib.SMTP("smtp.qq.com:587")
-server.starttls()
-server.login(from_email, password)
-
-def send_email(to_email, from_email, warntype):
-    message = MIMEMultipart()
-    message["From"] = from_email
-    message["To"] = to_email
-    message["Subject"] = "警告！"
-
-    # Add in the message body
-    if warntype == "fall":
-        message_body = "老人摔倒了！" + time.strftime(
-            "%Y-%m-%d %H:%M:%S", time.localtime()
-        )
-    elif warntype == "intrude":
-        message_body = "有人闯入！"
-    elif warntype == "test":
-        message_body = "测试！" + time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
-
-    message.attach(MIMEText(message_body, "plain"))
-    server.sendmail(from_email, to_email, message.as_string())
+from path import cu_path
 
 
-class ObjectDetection:
-    def __init__(self, capture_index):
-        # default parameters
-        self.capture_index = capture_index
+class PredictStream:
+    def __init__(self):
+        # 邮件信息
+        self.password = "tpymueebnzojchcf"
+        self.from_email = ("jaydentang418@qq.com")
+        self.to_email = "jaydentang418@qq.com"
 
-        # flag information
-        self.flag = {
-            "fall": False,
-        }
+        self.server = smtplib.SMTP("smtp.qq.com:587")
+        self.server.starttls()
+        self.server.login(self.from_email, self.password)
 
-        # model information
-        self.model = YOLO("./ModelPredict/yolov8n_face.pt")
+        # 模型信息
+        self.model_fall = YOLO(f"{cu_path}/yolov8n_fall.pt")
+        self.model_face = YOLO(f"{cu_path}/yolov8n_face.pt")
 
-        # visual information
+        # 可视化信息
         self.annotator = None
 
-        # time information
-        self.start_time_total = 0
-        self.end_time_total = 0
-        self.start_time_cycle = 0
-        self.end_time_cycle = 0
-        self.start_time_fall = 0
-        self.end_time_fall = 0
-
-        # device information
-        self.device = "cuda" if torch.cuda.is_available() else "cpu"
+        # 时间信息
+        self.time_total_start = 0
+        self.time_total_end = 0
+        self.time_cycle_start = 0
+        self.time_cycle_end = 0
 
         # 循环次数
-        self.face_cycle_num = 0
+        self.cycle_num = 0
 
+        # 人脸信息保存间隔
+        self,face_imwrite_step = 2
+
+        # 人物信息
+        self.person = {}
+
+        # 设备信息
+        self.device = "cuda" if torch.cuda.is_available() else "cpu"
+
+    def send_email(self, warntype):
+        message = MIMEMultipart()
+        message["From"] = self.from_email
+        message["To"] = self.to_email
+        message["Subject"] = "警告！"
+
+        # Add in the message body
+        if warntype == "fall":
+            message_body = "老人摔倒了！" + time.strftime(
+                "%Y-%m-%d %H:%M:%S", time.localtime()
+            )
+        elif warntype == "intrude":
+            message_body = "有人闯入！"
+        elif warntype == "test":
+            message_body = "测试！" + time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+
+        message.attach(MIMEText(message_body, "plain"))
+        self.server.sendmail(self.from_email, self.to_email, message.as_string())
+    
     def predict(self, im0):
-        results = self.model(im0)
+        results = [self.model_fall(im0), self.model_face(im0)]
         return results
 
     def display_fps(self, im0):
-        self.end_time_cycle = time.time()
-        fps = 1 / np.round(self.end_time_cycle - self.start_time_cycle, 2)
+        self.time_cycle_end = time.time()
+        fps = 1 / np.round(self.time_cycle_end - self.time_cycle_start, 2)
         text = f"FPS: {int(fps)}"
         text_size = cv2.getTextSize(text, cv2.FONT_HERSHEY_SIMPLEX, 1.0, 2)[0]
         gap = 10
@@ -90,12 +87,12 @@ class ObjectDetection:
         )
         cv2.putText(im0, text, (20, 70), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0, 0, 0), 2)
 
-    def plot_bboxes(self, results, im0):
+    def plot_bboxes(self, results_fall, results_face, im0):
         class_ids = []
-        self.annotator = Annotator(im0, 3, results[0].names)
-        boxes = results[0].boxes.xyxy.cpu()
-        clss = results[0].boxes.cls.cpu().tolist()
-        names = results[0].names
+        self.annotator = Annotator(im0, 3, results_face[0].names)
+        boxes = results_face[0].boxes.xyxy.cpu()
+        clss = results_face[0].boxes.cls.cpu().tolist()
+        names = results_face[0].names
         face_imwrite_step = 2
         os.makedirs("./ModelPredict/TestData/temp_face_images", exist_ok=True)
         for box, cls in zip(boxes, clss):
@@ -126,17 +123,27 @@ class ObjectDetection:
         return
 
     def __call__(self):
-        cap = cv2.VideoCapture(self.capture_index)
+        # 从摄像头获取视频流
+        cap = cv2.VideoCapture(1)
         assert cap.isOpened()
+
+        # 设置摄像头参数
         cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
         cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
-        frame_count = 0
+
         while True:
-            self.start_time_cycle = time.time()
+            # 记录系统运行开始时间
+            self.time_cycle_start = time.time()
+
+            # 读取视频帧,返回ret(布尔值,表示帧是否被成功读取)和im0(BGR三维数组,视频帧本身)
             ret, im0 = cap.read()
             assert ret
-            results = self.predict(im0)
-            im0, class_ids = self.plot_bboxes(results, im0)
+
+            # 预测
+            results_fall, results_face = self.predict(im0)
+
+            # 画框
+            im0 = self.plot_bboxes(results_fall, results_face, im0)
 
             # if 1 in class_ids:  # Only send email If not sent before
             #     if not self.flag['fall_notify']:
@@ -157,8 +164,8 @@ class ObjectDetection:
                 break
         cap.release()
         cv2.destroyAllWindows()
-        server.quit()
+        self.server.quit()
 
 
-detector = ObjectDetection(capture_index=1)
+detector = PredictStream()
 detector()
