@@ -5,6 +5,8 @@ from nets.facenet import FaceNet
 from utils.dataloader import LFWDataset
 from utils.utils_metrics import test
 
+from path import cu_path, lfw_path, casia_path
+
 if __name__ == "__main__":
     #--------------------------------------#
     #   是否使用cuda
@@ -18,13 +20,13 @@ if __name__ == "__main__":
     #--------------------------------------#
     #   训练好的权值文件
     #--------------------------------------#
-    model_path      = "./FaceIdentify/facenet_mobilenet.pth"
+    model_path      = f"{cu_path}/FaceIdentify/facenet_mobilenet.pth"
     #--------------------------------------#
     #   LFW评估数据集的文件路径
     #   以及对应的txt文件
     #--------------------------------------#
-    lfw_dir_path    = "/Users/jayden/Library/CloudStorage/OneDrive-jaydentang/Datasets/lfw"
-    lfw_pairs_path  = "./FaceIdentify/lfw_pair.txt"
+    lfw_dir_path    = lfw_path
+    lfw_pairs_path  = f"{cu_path}/FaceIdentify/lfw_pair.txt"
     #--------------------------------------#
     #   评估的批次大小和记录间隔
     #--------------------------------------#
@@ -33,7 +35,7 @@ if __name__ == "__main__":
     #--------------------------------------#
     #   ROC图的保存路径
     #--------------------------------------#
-    png_save_path   = "./FaceIdentify/roc_test.png"
+    png_save_path   = f"{cu_path}/FaceIdentify/roc_test.png"
 
     test_loader = torch.utils.data.DataLoader(
         LFWDataset(dir=lfw_dir_path, pairs_path=lfw_pairs_path, image_size=input_shape), batch_size=batch_size, shuffle=False)
