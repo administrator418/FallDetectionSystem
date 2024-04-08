@@ -7,7 +7,6 @@ from ultralytics.utils.plotting import Annotator, colors
 import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-from path import cu_path
 
 class ObjectDetection:
     def __init__(self, capture_index):
@@ -16,24 +15,23 @@ class ObjectDetection:
         self.email_sent = False
 
         # model information
-        self.model_fall = YOLO(f"{cu_path}/yolov8n_fall.pt")
-        self.model_face = YOLO(f"{cu_path}/yolov8n_face.pt")
+        self.model = YOLO("yolov8n.pt")
 
         # visual information
         self.annotator = None
-        self.time_cycle_start = 0
-        self.time_cycle_end = 0
+        self.start_time = 0
+        self.end_time = 0
 
         # device information
         self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
     def predict(self, im0):
-        results = [self.model_fall(im0), self.model_face(im0)]
+        results = self.model(im0)
         return results
 
     def display_fps(self, im0):
-        self.time_cycle_end = time()
-        fps = 1 / np.round(self.time_cycle_end - self.time_cycle_start, 2)
+        self.end_time = time()
+        fps = 1 / np.round(self.end_time - self.start_time, 2)
         text = f'FPS: {int(fps)}'
         text_size = cv2.getTextSize(text, cv2.FONT_HERSHEY_SIMPLEX, 1.0, 2)[0]
         gap = 10
@@ -41,21 +39,15 @@ class ObjectDetection:
         cv2.putText(im0, text, (20, 70), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0, 0, 0), 2)
 
     def plot_bboxes(self, results, im0):
-        class_ids_total = []
-        for result in results:
-            class_ids = []
-            self.annotator = Annotator(im0, 3, result[0].names)
-            boxes = result[0].boxes.xyxy.cpu()
-            clss = result[0].boxes.cls.cpu().tolist()
-            names = result[0].names
-            if names == {0: 'Person', 1: 'Human face'}:
-                print(boxes)
-                print(clss)
-            for box, cls in zip(boxes, clss):
-                class_ids.append(cls)
-                self.annotator.box_label(box, label=names[int(cls)], color=colors(int(cls), True))
-            class_ids_total.append(class_ids)
-        return im0, class_ids_total
+        class_ids = []
+        self.annotator = Annotator(im0, 3, results[0].names)
+        boxes = results[0].boxes.xyxy.cpu()
+        clss = results[0].boxes.cls.cpu().tolist()
+        names = results[0].names
+        for box, cls in zip(boxes, clss):
+            class_ids.append(cls)
+            self.annotator.box_label(box, label=names[int(cls)], color=colors(int(cls), True))
+        return im0, class_ids
 
     def __call__(self):
         cap = cv2.VideoCapture(self.capture_index)
@@ -64,19 +56,18 @@ class ObjectDetection:
         cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
         frame_count = 0
         while True:
-            self.time_cycle_start = time()
+            self.start_time = time()
             ret, im0 = cap.read()
             assert ret
             results = self.predict(im0)
-            im0, class_ids_total = self.plot_bboxes(results, im0)
+            im0, class_ids = self.plot_bboxes(results, im0)
 
-            for class_ids in class_ids_total:
-                if len(class_ids) > 0:
-                    if not self.email_sent:
-                        # send_email(to_email, from_email, len(class_ids))
-                        self.email_sent = True
-                else:
-                    self.email_sent = False
+            if len(class_ids) > 0:  # Only send email If not sent before
+                if not self.email_sent:
+                    # send_email(to_email, from_email, len(class_ids))
+                    self.email_sent = True
+            else:
+                self.email_sent = False
 
             self.display_fps(im0)
             cv2.imshow('YOLOv8 Detection', im0)
@@ -87,5 +78,5 @@ class ObjectDetection:
         cv2.destroyAllWindows()
         # server.quit()
 
-od = ObjectDetection(0)
+od = ObjectDetection(capture_index=0)
 od()
