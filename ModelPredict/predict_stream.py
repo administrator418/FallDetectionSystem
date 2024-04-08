@@ -33,8 +33,8 @@ class PredictStream:
         self.server.login(self.from_email, self.password)
 
         # 模型信息
-        self.model_fall = YOLO(f"{cu_path}/yolov8n_fall.pt")
-        self.model_face = YOLO(f"{cu_path}/yolov8n_face.pt")
+        self.model_fall = YOLO(f"{cu_path}/PredictData/models/yolov8n_fall.pt")
+        self.model_face = YOLO(f"{cu_path}/PredictData/models/yolov8n_face.pt")
 
         # 可视化信息
         self.annotator = None
