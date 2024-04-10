@@ -1,133 +1,120 @@
+# ///////////////////////////////////////////////////////////////
+#
+# BY: WANDERSON M.PIMENTA
+# PROJECT MADE WITH: Qt Designer and PySide6
+# V: 1.0.0
+#
+# This project can be used freely for all uses, as long as they maintain the
+# respective credits only in the Python scripts, any information in the visual
+# interface (GUI) can be modified without any implication.
+#
+# There are limitations on Qt licenses if you want to use your products
+# commercially, I recommend reading them on the official website:
+# https://doc.qt.io/qtforpython/licenses.html
+#
+# ///////////////////////////////////////////////////////////////
+
+# IMPORT PACKAGES AND MODULES
+# ///////////////////////////////////////////////////////////////
+from gui.uis.windows.main_window.functions_main_window import *
 import sys
 import os
-import platform
 
-# IMPORT / GUI AND MODULES AND WIDGETS
+# IMPORT QT CORE
 # ///////////////////////////////////////////////////////////////
-from modules import *
-from widgets import *
-os.environ["QT_FONT_DPI"] = "96" # FIX Problem for High DPI and Scale above 100%
+from qt_core import *
 
-# SET AS GLOBAL WIDGETS
+# IMPORT SETTINGS
 # ///////////////////////////////////////////////////////////////
-widgets = None
+from gui.core.json_settings import Settings
 
+# IMPORT PY ONE DARK WINDOWS
+# ///////////////////////////////////////////////////////////////
+# MAIN WINDOW
+from gui.uis.windows.main_window import *
+
+# IMPORT PY ONE DARK WIDGETS
+# ///////////////////////////////////////////////////////////////
+from gui.widgets import *
+
+# ADJUST QT FONT DPI FOR HIGHT SCALE AN 4K MONITOR
+# ///////////////////////////////////////////////////////////////
+os.environ["QT_FONT_DPI"] = "96"
+# IF IS 4K MONITOR ENABLE 'os.environ["QT_SCALE_FACTOR"] = "2"'
+
+# MAIN WINDOW
+# ///////////////////////////////////////////////////////////////
 class MainWindow(QMainWindow):
     def __init__(self):
-        QMainWindow.__init__(self)
+        super().__init__()
 
-        # SET AS GLOBAL WIDGETS
+        # SETUP MAIN WINDOw
+        # Load widgets from "gui\uis\main_window\ui_main.py"
         # ///////////////////////////////////////////////////////////////
-        self.ui = Ui_MainWindow()
-        self.ui.setupUi(self)
-        global widgets
-        widgets = self.ui
+        self.ui = UI_MainWindow()
+        self.ui.setup_ui(self)
 
-        # USE CUSTOM TITLE BAR | USE AS "False" FOR MAC OR LINUX
+        # LOAD SETTINGS
         # ///////////////////////////////////////////////////////////////
-        Settings.ENABLE_CUSTOM_TITLE_BAR = True
+        settings = Settings()
+        self.settings = settings.items
 
-        # APP NAME
+        # SETUP MAIN WINDOW
         # ///////////////////////////////////////////////////////////////
-        title = "PyDracula - Modern GUI"
-        description = "PyDracula APP - Theme with colors based on Dracula for Python."
-        # APPLY TEXTS
-        self.setWindowTitle(title)
-        widgets.titleRightInfo.setText(description)
+        self.hide_grips = True # Show/Hide resize grips
+        SetupMainWindow.setup_gui(self)
 
-        # TOGGLE MENU
-        # ///////////////////////////////////////////////////////////////
-        widgets.toggleButton.clicked.connect(lambda: UIFunctions.toggleMenu(self, True))
-
-        # SET UI DEFINITIONS
-        # ///////////////////////////////////////////////////////////////
-        UIFunctions.uiDefinitions(self)
-
-        # QTableWidget PARAMETERS
-        # ///////////////////////////////////////////////////////////////
-        widgets.tableWidget.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
-
-        # BUTTONS CLICK
-        # ///////////////////////////////////////////////////////////////
-
-        # LEFT MENUS
-        widgets.btn_home.clicked.connect(self.buttonClick)
-        widgets.btn_widgets.clicked.connect(self.buttonClick)
-        widgets.btn_new.clicked.connect(self.buttonClick)
-        widgets.btn_save.clicked.connect(self.buttonClick)
-
-        # EXTRA LEFT BOX
-        def openCloseLeftBox():
-            UIFunctions.toggleLeftBox(self, True)
-        widgets.toggleLeftBox.clicked.connect(openCloseLeftBox)
-        widgets.extraCloseColumnBtn.clicked.connect(openCloseLeftBox)
-
-        # EXTRA RIGHT BOX
-        def openCloseRightBox():
-            UIFunctions.toggleRightBox(self, True)
-        widgets.settingsTopBtn.clicked.connect(openCloseRightBox)
-
-        # SHOW APP
+        # SHOW MAIN WINDOW
         # ///////////////////////////////////////////////////////////////
         self.show()
 
-        # SET CUSTOM THEME
-        # ///////////////////////////////////////////////////////////////
-        useCustomTheme = False
-        themeFile = "themes\py_dracula_light.qss"
-
-        # SET THEME AND HACKS
-        if useCustomTheme:
-            # LOAD AND APPLY STYLE
-            UIFunctions.theme(self, themeFile, True)
-
-            # SET HACKS
-            AppFunctions.setThemeHack(self)
-
-        # SET HOME PAGE AND SELECT MENU
-        # ///////////////////////////////////////////////////////////////
-        widgets.stackedWidget.setCurrentWidget(widgets.home)
-        widgets.btn_home.setStyleSheet(UIFunctions.selectMenu(widgets.btn_home.styleSheet()))
-
-
-    # BUTTONS CLICK
-    # Post here your functions for clicked buttons
+    # LEFT MENU BTN IS CLICKED
+    # Run function when btn is clicked
+    # Check funtion by object name / btn_id
     # ///////////////////////////////////////////////////////////////
-    def buttonClick(self):
-        # GET BUTTON CLICKED
-        btn = self.sender()
-        btnName = btn.objectName()
+    def btn_clicked(self):
+        # GET BT CLICKED
+        btn = SetupMainWindow.setup_btns(self)
+        
+        # TITLE BAR MENU
+        # ///////////////////////////////////////////////////////////////
+        
+        # SETTINGS TITLE BAR
+        if btn.objectName() == "btn_top_settings":
+            # Toogle Active
+            if not MainFunctions.right_column_is_visible(self):
+                btn.set_active(True)
 
-        # SHOW HOME PAGE
-        if btnName == "btn_home":
-            widgets.stackedWidget.setCurrentWidget(widgets.home)
-            UIFunctions.resetStyle(self, btnName)
-            btn.setStyleSheet(UIFunctions.selectMenu(btn.styleSheet()))
+                # Show / Hide
+                MainFunctions.toggle_right_column(self)
+            else:
+                btn.set_active(False)
 
-        # SHOW WIDGETS PAGE
-        if btnName == "btn_widgets":
-            widgets.stackedWidget.setCurrentWidget(widgets.widgets)
-            UIFunctions.resetStyle(self, btnName)
-            btn.setStyleSheet(UIFunctions.selectMenu(btn.styleSheet()))
+                # Show / Hide
+                MainFunctions.toggle_right_column(self)
 
-        # SHOW NEW PAGE
-        if btnName == "btn_new":
-            widgets.stackedWidget.setCurrentWidget(widgets.new_page) # SET PAGE
-            UIFunctions.resetStyle(self, btnName) # RESET ANOTHERS BUTTONS SELECTED
-            btn.setStyleSheet(UIFunctions.selectMenu(btn.styleSheet())) # SELECT MENU
+            # Get Left Menu Btn            
+            top_settings = MainFunctions.get_left_menu_btn(self, "btn_settings")
+            top_settings.set_active_tab(False)            
 
-        if btnName == "btn_save":
-            print("Save BTN clicked!")
+        # DEBUG
+        print(f"Button {btn.objectName()}, clicked!")
 
-        # PRINT BTN NAME
-        print(f'Button "{btnName}" pressed!')
+    # LEFT MENU BTN IS RELEASED
+    # Run function when btn is released
+    # Check funtion by object name / btn_id
+    # ///////////////////////////////////////////////////////////////
+    def btn_released(self):
+        # GET BT CLICKED
+        btn = SetupMainWindow.setup_btns(self)
 
+        # DEBUG
+        print(f"Button {btn.objectName()}, released!")
 
-    # RESIZE EVENTS
+    # RESIZE EVENT
     # ///////////////////////////////////////////////////////////////
     def resizeEvent(self, event):
-        # Update Size Grips
-        UIFunctions.resize_grips(self)
+        SetupMainWindow.resize_grips(self)
 
     # MOUSE CLICK EVENTS
     # ///////////////////////////////////////////////////////////////
@@ -135,14 +122,17 @@ class MainWindow(QMainWindow):
         # SET DRAG POS WINDOW
         self.dragPos = event.globalPos()
 
-        # PRINT MOUSE EVENTS
-        if event.buttons() == Qt.LeftButton:
-            print('Mouse click: LEFT CLICK')
-        if event.buttons() == Qt.RightButton:
-            print('Mouse click: RIGHT CLICK')
 
+# SETTINGS WHEN TO START
+# Set the initial class and also additional parameters of the "QApplication" class
+# ///////////////////////////////////////////////////////////////
 if __name__ == "__main__":
+    # APPLICATION
+    # ///////////////////////////////////////////////////////////////
     app = QApplication(sys.argv)
     app.setWindowIcon(QIcon("icon.ico"))
     window = MainWindow()
+
+    # EXEC APP
+    # ///////////////////////////////////////////////////////////////
     sys.exit(app.exec_())

@@ -1,6 +1,7 @@
 {
     "python.analysis.extraPaths": [
-        "./ModelPredict",
-        "./FaceIdentify"
+        "ModelPredict",
+        "FaceIdentify",
+        "UI"
     ]
 }
