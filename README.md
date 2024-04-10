@@ -1,3 +1,3 @@
 # FallDetection-FaceRecognition
 
-可以识别具体人的摔倒检测项目源代码
+可识别是谁的跌倒检测系统项目源代码
