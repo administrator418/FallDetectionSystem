@@ -1,43 +1,22 @@
-# ///////////////////////////////////////////////////////////////
-#
-# BY: WANDERSON M.PIMENTA
-# PROJECT MADE WITH: Qt Designer and PySide6
-# V: 1.0.0
-#
-# This project can be used freely for all uses, as long as they maintain the
-# respective credits only in the Python scripts, any information in the visual
-# interface (GUI) can be modified without any implication.
-#
-# There are limitations on Qt licenses if you want to use your products
-# commercially, I recommend reading them on the official website:
-# https://doc.qt.io/qtforpython/licenses.html
-#
-# ///////////////////////////////////////////////////////////////
-
-# IMPORT PACKAGES AND MODULES
-# ///////////////////////////////////////////////////////////////
 import sys
-
-# IMPORT QT CORE
-# ///////////////////////////////////////////////////////////////
 from PySide6.QtCore import *
 from PySide6.QtGui import *
 from PySide6.QtWidgets import *
 from PySide6.QtSvgWidgets import *
 
-# PY GRIPS
+# 可调整窗口大小的控制点
 # ///////////////////////////////////////////////////////////////
 class PyGrips(QWidget):
     def __init__(self, parent, position, disable_color = False):
 
-        # SETUP UI
+        # 设置部件
         # ///////////////////////////////////////////////////////////////
         super().__init__()
         self.parent = parent
         self.setParent(parent)
         self.wi = Widgets()
 
-        # SHOW TOP LEFT GRIP
+        # 左上角控制点
         # ///////////////////////////////////////////////////////////////
         if position == "top_left":
             self.wi.top_left(self)
@@ -45,11 +24,11 @@ class PyGrips(QWidget):
             grip.setFixedSize(self.wi.top_left_grip.size())
             self.setGeometry(5, 5, 15, 15)
             
-            # ENABLE COLOR
+            # 如果禁用颜色, 则设置背景透明
             if disable_color:
                 self.wi.top_left_grip.setStyleSheet("background: transparent")
 
-        # SHOW TOP RIGHT GRIP
+        # 右上角控制点
         # ///////////////////////////////////////////////////////////////
         if position == "top_right":
             self.wi.top_right(self)
@@ -57,11 +36,11 @@ class PyGrips(QWidget):
             grip.setFixedSize(self.wi.top_right_grip.size())
             self.setGeometry(self.parent.width() - 20, 5, 15, 15)
             
-            # ENABLE COLOR
+            # 如果禁用颜色, 则设置背景透明
             if disable_color:
                 self.wi.top_right_grip.setStyleSheet("background: transparent")
 
-        # SHOW BOTTOM LEFT GRIP
+        # 左下角控制点
         # ///////////////////////////////////////////////////////////////
         if position == "bottom_left":
             self.wi.bottom_left(self)
@@ -69,11 +48,11 @@ class PyGrips(QWidget):
             grip.setFixedSize(self.wi.bottom_left_grip.size())
             self.setGeometry(5, self.parent.height() - 20, 15, 15)
             
-            # ENABLE COLOR
+            # 如果禁用颜色, 则设置背景透明
             if disable_color:
                 self.wi.bottom_left_grip.setStyleSheet("background: transparent")
 
-        # SHOW BOTTOM RIGHT GRIP
+        # 右下角控制点
         # ///////////////////////////////////////////////////////////////
         if position == "bottom_right":
             self.wi.bottom_right(self)
@@ -81,18 +60,18 @@ class PyGrips(QWidget):
             grip.setFixedSize(self.wi.bottom_right_grip.size())
             self.setGeometry(self.parent.width() - 20, self.parent.height() - 20, 15, 15)
             
-            # ENABLE COLOR
+            # 如果禁用颜色, 则设置背景透明
             if disable_color:
                 self.wi.bottom_right_grip.setStyleSheet("background: transparent")
 
-        # SHOW TOP GRIP
+        # 顶部控制点
         # ///////////////////////////////////////////////////////////////
         if position == "top":
             self.wi.top(self)
             self.setGeometry(0, 5, self.parent.width(), 10)
             self.setMaximumHeight(10)
 
-            # RESIZE TOP
+            # 从顶部调整大小
             def resize_top(event):
                 delta = event.pos()
                 height = max(self.parent.minimumHeight(), self.parent.height() - delta.y())
@@ -102,18 +81,18 @@ class PyGrips(QWidget):
                 event.accept()
             self.wi.top_grip.mouseMoveEvent = resize_top
 
-            # ENABLE COLOR
+            # 如果禁用颜色, 则设置背景透明
             if disable_color:
                 self.wi.top_grip.setStyleSheet("background: transparent")
 
-        # SHOW BOTTOM GRIP
+        # 底部控制点
         # ///////////////////////////////////////////////////////////////
         elif position == "bottom":
             self.wi.bottom(self)
             self.setGeometry(0, self.parent.height() - 10, self.parent.width(), 10)
             self.setMaximumHeight(10)
 
-            # RESIZE BOTTOM
+            # 从底部调整大小
             def resize_bottom(event):
                 delta = event.pos()
                 height = max(self.parent.minimumHeight(), self.parent.height() + delta.y())
@@ -121,18 +100,18 @@ class PyGrips(QWidget):
                 event.accept()
             self.wi.bottom_grip.mouseMoveEvent = resize_bottom
 
-            # ENABLE COLOR
+            # 如果禁用颜色, 则设置背景透明
             if disable_color:
                 self.wi.bottom_grip.setStyleSheet("background: transparent")
 
-        # SHOW LEFT GRIP
+        # 左侧控制点
         # ///////////////////////////////////////////////////////////////
         elif position == "left":
             self.wi.left(self)
             self.setGeometry(0, 10, 10, self.parent.height())
             self.setMaximumWidth(10)
 
-            # RESIZE LEFT
+            # 从左侧调整大小
             def resize_left(event):
                 delta = event.pos()
                 width = max(self.parent.minimumWidth(), self.parent.width() - delta.x())
@@ -142,17 +121,18 @@ class PyGrips(QWidget):
                 event.accept()
             self.wi.left_grip.mouseMoveEvent = resize_left
 
-            # ENABLE COLOR
+            # 如果禁用颜色, 则设置背景透明
             if disable_color:
                 self.wi.left_grip.setStyleSheet("background: transparent")
 
-        # RESIZE RIGHT
+        # 右侧控制点
         # ///////////////////////////////////////////////////////////////
         elif position == "right":
             self.wi.right(self)
             self.setGeometry(self.parent.width() - 10, 10, 10, self.parent.height())
             self.setMaximumWidth(10)
 
+            # 从右侧调整大小
             def resize_right(event):
                 delta = event.pos()
                 width = max(self.parent.minimumWidth(), self.parent.width() + delta.x())
@@ -160,16 +140,16 @@ class PyGrips(QWidget):
                 event.accept()
             self.wi.right_grip.mouseMoveEvent = resize_right
 
-            # ENABLE COLOR
+            # 如果禁用颜色, 则设置背景透明
             if disable_color:
                 self.wi.right_grip.setStyleSheet("background: transparent")
 
-    # MOUSE RELEASE
+    # 鼠标释放事件
     # ///////////////////////////////////////////////////////////////
     def mouseReleaseEvent(self, event):
         self.mousePos = None
 
-    # RESIZE EVENT
+    # 窗体大小调整事件, 根据不同的控制点调整其几何位置
     # ///////////////////////////////////////////////////////////////
     def resizeEvent(self, event):
         if hasattr(self.wi, 'top_grip'):
@@ -194,7 +174,7 @@ class PyGrips(QWidget):
             self.wi.bottom_right_grip.setGeometry(self.width() - 15, self.height() - 15, 15, 15)
 
 
-# GRIP WIDGTES
+# 控制点部件
 # ///////////////////////////////////////////////////////////////
 class Widgets(object):
     def top_left(self, form):

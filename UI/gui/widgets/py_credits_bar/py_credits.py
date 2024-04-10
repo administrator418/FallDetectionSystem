@@ -1,27 +1,9 @@
-# ///////////////////////////////////////////////////////////////
-#
-# BY: WANDERSON M.PIMENTA
-# PROJECT MADE WITH: Qt Designer and PySide6
-# V: 1.0.0
-#
-# This project can be used freely for all uses, as long as they maintain the
-# respective credits only in the Python scripts, any information in the visual
-# interface (GUI) can be modified without any implication.
-#
-# There are limitations on Qt licenses if you want to use your products
-# commercially, I recommend reading them on the official website:
-# https://doc.qt.io/qtforpython/licenses.html
-#
-# ///////////////////////////////////////////////////////////////
-
-# IMPORT QT CORE
-# ///////////////////////////////////////////////////////////////
 from PySide6.QtCore import *
 from PySide6.QtGui import *
 from PySide6.QtWidgets import *
 from PySide6.QtSvgWidgets import *
 
-# PY CREDITS BAR AND VERSION
+# 显示版权和版本信息
 # ///////////////////////////////////////////////////////////////
 class PyCredits(QWidget):
     def __init__(
@@ -37,7 +19,7 @@ class PyCredits(QWidget):
     ):
         super().__init__()
 
-        # PROPERTIES
+        # 属性
         self._copyright = copyright
         self._version = version
         self._bg_two = bg_two
@@ -47,15 +29,15 @@ class PyCredits(QWidget):
         self._radius = radius
         self._padding = padding
 
-        # SETUP UI
+        # 调用setup_ui()
         self.setup_ui()
 
     def setup_ui(self):
-        # ADD LAYOUT
+        # 添加布局
         self.widget_layout = QHBoxLayout(self)
         self.widget_layout.setContentsMargins(0,0,0,0)
 
-        # BG STYLE
+        # 背景样式
         style = f"""
         #bg_frame {{
             border-radius: {self._radius}px;
@@ -69,30 +51,30 @@ class PyCredits(QWidget):
         }}
         """
 
-        # BG FRAME
+        # 背景框架, 应用上面的样式
         self.bg_frame = QFrame()
         self.bg_frame.setObjectName("bg_frame")
         self.bg_frame.setStyleSheet(style)
 
-        # ADD TO LAYOUT
+        # 将背景框架添加到布局
         self.widget_layout.addWidget(self.bg_frame)
 
-        # ADD BG LAYOUT
+        # 背景布局设置
         self.bg_layout = QHBoxLayout(self.bg_frame)
         self.bg_layout.setContentsMargins(0,0,0,0)
 
-        # ADD COPYRIGHT TEXT
+        # 添加版权信息
         self.copyright_label = QLabel(self._copyright)
         self.copyright_label.setAlignment(Qt.AlignVCenter)
 
-        # ADD VERSION TEXT
+        # 添加版本信息
         self.version_label = QLabel(self._version)
         self.version_label.setAlignment(Qt.AlignVCenter)
 
-        # SEPARATOR
+        # 添加分隔符
         self.separator = QSpacerItem(20, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
 
-        # ADD TO LAYOUT
+        # 将标签和分隔符添加到布局
         self.bg_layout.addWidget(self.copyright_label)
         self.bg_layout.addSpacerItem(self.separator)
         self.bg_layout.addWidget(self.version_label)

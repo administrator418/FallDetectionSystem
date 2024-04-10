@@ -1,4 +1,4 @@
 import os
 
-path = "./UI/UI.py"
+path = "./UI/main.py"
 os.system(f"python {path}")
