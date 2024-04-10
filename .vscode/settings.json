@@ -1,7 +1,6 @@
 {
     "python.analysis.extraPaths": [
         "ModelPredict",
-        "FaceIdentify",
-        "UI"
+        "FaceIdentify"
     ]
 }
