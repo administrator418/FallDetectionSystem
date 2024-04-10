@@ -3,22 +3,20 @@ import os
 from cx_Freeze import setup, Executable
 
 # ADD FILES
-files = ['icon.ico','themes/']
+files = ["UI/icon.ico", "UI/themes/"]
 
 # TARGET
 target = Executable(
-    script="main.py",
-    base="Win32GUI",
-    icon="icon.ico"
+    script="UI/main.py",
+    icon="UI/icon.ico"
 )
 
 # SETUP CX FREEZE
 setup(
-    name = "PyDracula",
-    version = "1.0",
-    description = "Modern GUI for Python applications",
-    author = "Wanderson M. Pimenta",
-    options = {'build_exe' : {'include_files' : files}},
-    executables = [target]
-    
+    name="PyDracula",
+    version="0.0",
+    description="跌倒检测系统",
+    author="jayden",
+    options={'build_exe': {'include_files': files}},
+    executables=[target]
 )
