@@ -1,28 +1,10 @@
-# ///////////////////////////////////////////////////////////////
-#
-# BY: WANDERSON M.PIMENTA
-# PROJECT MADE WITH: Qt Designer and PySide6
-# V: 1.0.0
-#
-# This project can be used freely for all uses, as long as they maintain the
-# respective credits only in the Python scripts, any information in the visual
-# interface (GUI) can be modified without any implication.
-#
-# There are limitations on Qt licenses if you want to use your products
-# commercially, I recommend reading them on the official website:
-# https://doc.qt.io/qtforpython/licenses.html
-#
-# ///////////////////////////////////////////////////////////////
-
-# IMPORT PACKAGES AND MODULES
-# ///////////////////////////////////////////////////////////////
 import json
 import os
 
-# APP SETTINGS
+# 应用程序设置
 # ///////////////////////////////////////////////////////////////
 class Settings(object):
-    # APP PATH
+    # 应用程序路径
     # ///////////////////////////////////////////////////////////////
     json_file = "UI/settings.json"
     app_path = os.path.abspath(os.getcwd())
@@ -30,29 +12,28 @@ class Settings(object):
     if not os.path.isfile(settings_path):
         print(f"WARNING: \"UI/settings.json\" not found! check in the folder {settings_path}")
     
-    # INIT SETTINGS
+    # 初始化设置
     # ///////////////////////////////////////////////////////////////
     def __init__(self):
         super(Settings, self).__init__()
 
-        # DICTIONARY WITH SETTINGS
-        # Just to have objects references
+        # 只是为了有对象引用
         self.items = {}
 
-        # DESERIALIZE
+        # 反序列化
         self.deserialize()
 
-    # SERIALIZE JSON
+    # 序列化(将Python数据结构序列化为JSON格式的字符串)
     # ///////////////////////////////////////////////////////////////
     def serialize(self):
-        # WRITE JSON FILE
+        # 写JSON文件
         with open(self.settings_path, "w", encoding='utf-8') as write:
             json.dump(self.items, write, indent=4)
 
-    # DESERIALIZE JSON
+    # 反序列化(将JSON格式的字符串转换成Python的数据结构)
     # ///////////////////////////////////////////////////////////////
     def deserialize(self):
-        # READ JSON FILE
+        # 读JSON文件
         with open(self.settings_path, "r", encoding='utf-8') as reader:
             settings = json.loads(reader.read())
             self.items = settings

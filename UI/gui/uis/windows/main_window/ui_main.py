@@ -1,56 +1,14 @@
-# ///////////////////////////////////////////////////////////////
-#
-# BY: WANDERSON M.PIMENTA
-# PROJECT MADE WITH: Qt Designer and PySide6
-# V: 1.0.0
-#
-# This project can be used freely for all uses, as long as they maintain the
-# respective credits only in the Python scripts, any information in the visual
-# interface (GUI) can be modified without any implication.
-#
-# There are limitations on Qt licenses if you want to use your products
-# commercially, I recommend reading them on the official website:
-# https://doc.qt.io/qtforpython/licenses.html
-#
-# ///////////////////////////////////////////////////////////////
-
-# IMPORT PACKAGES AND MODULES
-# ///////////////////////////////////////////////////////////////
 from gui.core.functions import Functions
-
-# IMPORT QT CORE
-# ///////////////////////////////////////////////////////////////
 from PySide6.QtCore import *
 from PySide6.QtGui import *
 from PySide6.QtWidgets import *
 from PySide6.QtSvgWidgets import *
-
-# IMPORT SETTINGS
-# ///////////////////////////////////////////////////////////////
 from gui.core.json_settings import Settings
-
-# IMPORT THEME COLORS
-# ///////////////////////////////////////////////////////////////
 from gui.core.json_themes import Themes
-
-# IMPORT PY ONE DARK WIDGETS
-# ///////////////////////////////////////////////////////////////
 from gui.widgets import *
-
-# IMPORT SETUP MAIN WINDOW
-# ///////////////////////////////////////////////////////////////
 from . setup_main_window import *
-
-# IMPORT MAIN WINDOW PAGES / AND SIDE BOXES FOR APP
-# ///////////////////////////////////////////////////////////////
 from gui.uis.pages.ui_main_pages import Ui_MainPages
-
-# RIGHT COLUMN
-# ///////////////////////////////////////////////////////////////
 from gui.uis.columns.ui_right_column import Ui_RightColumn
-
-# CREDITS
-# ///////////////////////////////////////////////////////////////
 from gui.widgets.py_credits_bar.py_credits import PyCredits
 
 # PY WINDOW

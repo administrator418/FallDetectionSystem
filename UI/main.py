@@ -102,7 +102,6 @@ if __name__ == "__main__":
     # 开始程序
     # ///////////////////////////////////////////////////////////////
     app = QApplication(sys.argv)
-    app.setWindowIcon(QIcon("icon.ico"))
     window = MainWindow()
 
     # 退出程序
