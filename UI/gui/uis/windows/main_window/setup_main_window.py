@@ -23,7 +23,10 @@ import os
 
 # IMPORT QT CORE
 # ///////////////////////////////////////////////////////////////
-from qt_core import *
+from PySide6.QtCore import *
+from PySide6.QtGui import *
+from PySide6.QtWidgets import *
+from PySide6.QtSvgWidgets import *
 
 # IMPORT SETTINGS
 # ///////////////////////////////////////////////////////////////
@@ -194,8 +197,7 @@ class SetupMainWindow:
         # END - EXAMPLE CUSTOM WIDGETS
         # ///////////////////////////////////////////////////////////////
 
-    # RESIZE GRIPS AND CHANGE POSITION
-    # Resize or change position when window is resized
+    # 调整窗口大小或更改位置
     # ///////////////////////////////////////////////////////////////
     def resize_grips(self):
         if self.settings["custom_title_bar"]:

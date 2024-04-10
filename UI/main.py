@@ -1,138 +1,110 @@
-# ///////////////////////////////////////////////////////////////
-#
-# BY: WANDERSON M.PIMENTA
-# PROJECT MADE WITH: Qt Designer and PySide6
-# V: 1.0.0
-#
-# This project can be used freely for all uses, as long as they maintain the
-# respective credits only in the Python scripts, any information in the visual
-# interface (GUI) can be modified without any implication.
-#
-# There are limitations on Qt licenses if you want to use your products
-# commercially, I recommend reading them on the official website:
-# https://doc.qt.io/qtforpython/licenses.html
-#
-# ///////////////////////////////////////////////////////////////
-
-# IMPORT PACKAGES AND MODULES
-# ///////////////////////////////////////////////////////////////
 from gui.uis.windows.main_window.functions_main_window import *
 import sys
 import os
-
-# IMPORT QT CORE
-# ///////////////////////////////////////////////////////////////
-from qt_core import *
-
-# IMPORT SETTINGS
-# ///////////////////////////////////////////////////////////////
+from PySide6.QtCore import *
+from PySide6.QtGui import *
+from PySide6.QtWidgets import *
+from PySide6.QtSvgWidgets import *
 from gui.core.json_settings import Settings
-
-# IMPORT PY ONE DARK WINDOWS
-# ///////////////////////////////////////////////////////////////
-# MAIN WINDOW
 from gui.uis.windows.main_window import *
-
-# IMPORT PY ONE DARK WIDGETS
-# ///////////////////////////////////////////////////////////////
 from gui.widgets import *
 
-# ADJUST QT FONT DPI FOR HIGHT SCALE AN 4K MONITOR
+# 调整 dpi
 # ///////////////////////////////////////////////////////////////
-os.environ["QT_FONT_DPI"] = "96"
-# IF IS 4K MONITOR ENABLE 'os.environ["QT_SCALE_FACTOR"] = "2"'
+# dpi = QApplication(sys.argv).primaryScreen().logicalDotsPerInch()
+# print(str(int(dpi)))
+os.environ["QT_FONT_DPI"] = "72"
 
-# MAIN WINDOW
+# 主界面
 # ///////////////////////////////////////////////////////////////
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
 
-        # SETUP MAIN WINDOw
-        # Load widgets from "gui\uis\main_window\ui_main.py"
+        # 设置主界面
+        # 从 "gui\uis\main_window\ui_main.py" 导入 UI_MainWindow 类
         # ///////////////////////////////////////////////////////////////
         self.ui = UI_MainWindow()
         self.ui.setup_ui(self)
 
-        # LOAD SETTINGS
+        # 导入 settings
         # ///////////////////////////////////////////////////////////////
         settings = Settings()
         self.settings = settings.items
 
-        # SETUP MAIN WINDOW
+        # 设置主界面
         # ///////////////////////////////////////////////////////////////
-        self.hide_grips = True # Show/Hide resize grips
+        self.hide_grips = True # 是否隐藏调整手柄
         SetupMainWindow.setup_gui(self)
 
-        # SHOW MAIN WINDOW
+        # 显示主界面
         # ///////////////////////////////////////////////////////////////
         self.show()
 
-    # LEFT MENU BTN IS CLICKED
-    # Run function when btn is clicked
-    # Check funtion by object name / btn_id
+    # 左侧菜单按钮被点击
+    # 当按钮被点击时运行函数
+    # 通过对象名称/按钮ID检查功能
     # ///////////////////////////////////////////////////////////////
     def btn_clicked(self):
-        # GET BT CLICKED
+        # 获取被点击的按钮
         btn = SetupMainWindow.setup_btns(self)
         
-        # TITLE BAR MENU
+        # 标题栏菜单
         # ///////////////////////////////////////////////////////////////
         
-        # SETTINGS TITLE BAR
+        # 设置标题栏
         if btn.objectName() == "btn_top_settings":
             # Toogle Active
             if not MainFunctions.right_column_is_visible(self):
                 btn.set_active(True)
 
-                # Show / Hide
+                # 显示/隐藏
                 MainFunctions.toggle_right_column(self)
             else:
                 btn.set_active(False)
 
-                # Show / Hide
+                # 显示/隐藏
                 MainFunctions.toggle_right_column(self)
 
-            # Get Left Menu Btn            
+            # 获取左侧菜单按钮           
             top_settings = MainFunctions.get_left_menu_btn(self, "btn_settings")
             top_settings.set_active_tab(False)            
 
-        # DEBUG
+        # 测试
         print(f"Button {btn.objectName()}, clicked!")
 
-    # LEFT MENU BTN IS RELEASED
-    # Run function when btn is released
-    # Check funtion by object name / btn_id
+    # 左侧菜单按钮被释放
+    # 当按钮释放时运行函数
+    # 通过对象名称/按钮ID检查功能
     # ///////////////////////////////////////////////////////////////
     def btn_released(self):
-        # GET BT CLICKED
+        # 获取被释放的按钮
         btn = SetupMainWindow.setup_btns(self)
 
-        # DEBUG
+        # 测试
         print(f"Button {btn.objectName()}, released!")
 
-    # RESIZE EVENT
+    # 重新调整窗口大小
     # ///////////////////////////////////////////////////////////////
     def resizeEvent(self, event):
         SetupMainWindow.resize_grips(self)
 
-    # MOUSE CLICK EVENTS
+    # 鼠标拖拽窗口
     # ///////////////////////////////////////////////////////////////
     def mousePressEvent(self, event):
-        # SET DRAG POS WINDOW
+        # 设置拖动窗口位置
         self.dragPos = event.globalPos()
 
 
-# SETTINGS WHEN TO START
-# Set the initial class and also additional parameters of the "QApplication" class
+# 主函数
 # ///////////////////////////////////////////////////////////////
 if __name__ == "__main__":
-    # APPLICATION
+    # 开始程序
     # ///////////////////////////////////////////////////////////////
     app = QApplication(sys.argv)
     app.setWindowIcon(QIcon("icon.ico"))
     window = MainWindow()
 
-    # EXEC APP
+    # 退出程序
     # ///////////////////////////////////////////////////////////////
     sys.exit(app.exec_())
