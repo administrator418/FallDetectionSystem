@@ -9,4 +9,5 @@ from .py_toggle import PyToggle
 from .py_slider import PySlider
 from .py_circular_progress import PyCircularProgress
 from .py_icon_button import PyIconButton
+from .py_line_edit import PyLineEdit
 from .py_table_widget import PyTableWidget

@@ -5,22 +5,22 @@ from PySide6.QtWidgets import *
 from PySide6.QtSvgWidgets import *
 from .ui_main import *
 
-# FUNCTIONS
+# 主功能
 class MainFunctions():
     def __init__(self):
         super().__init__()
-        # SETUP MAIN WINDOw
-        # Load widgets from "gui\uis\main_window\ui_main.py"
+        # 设置主菜单
+        # 从 "gui\uis\main_window\ui_main.py" 导入小部件
         # ///////////////////////////////////////////////////////////////
         self.ui = UI_MainWindow()
         self.ui.setup_ui(self)
 
-    # SET MAIN WINDOW PAGES
+    # 设置主菜单的页
     # ///////////////////////////////////////////////////////////////
     def set_page(self, page):
         self.ui.load_pages.pages.setCurrentWidget(page)
 
-    # SET LEFT COLUMN PAGES
+    # 设置左菜单的页
     # ///////////////////////////////////////////////////////////////
     def set_left_column_menu(
         self,
@@ -32,7 +32,7 @@ class MainFunctions():
         self.ui.left_column.title_label.setText(title)
         self.ui.left_column.icon.set_icon(icon_path)
 
-    # RETURN IF LEFT COLUMN IS VISIBLE
+    # 返回左列是否可见
     # ///////////////////////////////////////////////////////////////
     def left_column_is_visible(self):
         width = self.ui.left_column_frame.width()
@@ -41,7 +41,7 @@ class MainFunctions():
         else:
             return True
 
-    # RETURN IF RIGHT COLUMN IS VISIBLE
+    # 返回右列是否可见
     # ///////////////////////////////////////////////////////////////
     def right_column_is_visible(self):
         width = self.ui.right_column_frame.width()
@@ -50,32 +50,32 @@ class MainFunctions():
         else:
             return True
 
-    # SET RIGHT COLUMN PAGES
+    # 设定右列菜单的页
     # ///////////////////////////////////////////////////////////////
     def set_right_column_menu(self, menu):
         self.ui.right_column.menus.setCurrentWidget(menu)
 
-    # GET TITLE BUTTON BY OBJECT NAME
+    # 通过对象名称获取标题按钮
     # ///////////////////////////////////////////////////////////////
     def get_title_bar_btn(self, object_name):
         return self.ui.title_bar_frame.findChild(QPushButton, object_name)
 
-    # GET TITLE BUTTON BY OBJECT NAME
+    # 通过对象名称获取左侧菜单按钮
     # ///////////////////////////////////////////////////////////////
     def get_left_menu_btn(self, object_name):
         return self.ui.left_menu.findChild(QPushButton, object_name)
     
-    # LEDT AND RIGHT COLUMNS / SHOW / HIDE
+    # 左右列/显示/隐藏
     # ///////////////////////////////////////////////////////////////
     def toggle_left_column(self):
-        # GET ACTUAL CLUMNS SIZE
+        # 获取实际列尺寸
         width = self.ui.left_column_frame.width()
         right_column_width = self.ui.right_column_frame.width()
 
         MainFunctions.start_box_animation(self, width, right_column_width, "left")
 
     def toggle_right_column(self):
-        # GET ACTUAL CLUMNS SIZE
+        # 获取实际列尺寸
         left_column_width = self.ui.left_column_frame.width()
         width = self.ui.right_column_frame.width()
 
@@ -90,33 +90,33 @@ class MainFunctions():
         minimum_right = self.ui.settings["right_column_size"]["minimum"]
         maximum_right = self.ui.settings["right_column_size"]["maximum"]
 
-        # Check Left Values        
+        # 检查左值
         if left_box_width == minimum_left and direction == "left":
             left_width = maximum_left
         else:
             left_width = minimum_left
 
-        # Check Right values        
+        # 检查右值
         if right_box_width == minimum_right and direction == "right":
             right_width = maximum_right
         else:
             right_width = minimum_right       
 
-        # ANIMATION LEFT BOX        
+        # 左框动画
         self.left_box = QPropertyAnimation(self.ui.left_column_frame, b"minimumWidth")
         self.left_box.setDuration(time_animation)
         self.left_box.setStartValue(left_box_width)
         self.left_box.setEndValue(left_width)
         self.left_box.setEasingCurve(QEasingCurve.InOutQuart)
 
-        # ANIMATION RIGHT BOX        
+        # 右框动画
         self.right_box = QPropertyAnimation(self.ui.right_column_frame, b"minimumWidth")
         self.right_box.setDuration(time_animation)
         self.right_box.setStartValue(right_box_width)
         self.right_box.setEndValue(right_width)
         self.right_box.setEasingCurve(QEasingCurve.InOutQuart)
 
-        # GROUP ANIMATION
+        # 并行动画组
         self.group = QParallelAnimationGroup()
         self.group.stop()
         self.group.addAnimation(self.left_box)

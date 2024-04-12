@@ -1,7 +1,7 @@
 {
     "app_name": "跌倒检测系统",
     "version" : "v1.0.0",
-    "copyright" : "By: Wanderson M. Pimenta",
+    "copyright" : "By: Jayden",
     "year" : 2024,
     "theme_name" : "default",
     "custom_title_bar": true,

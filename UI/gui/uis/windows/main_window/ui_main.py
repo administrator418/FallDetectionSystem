@@ -6,34 +6,34 @@ from PySide6.QtSvgWidgets import *
 from gui.core.json_settings import Settings
 from gui.core.json_themes import Themes
 from gui.widgets import *
-from . setup_main_window import *
-from gui.uis.pages.ui_main_pages import Ui_MainPages
-from gui.uis.columns.ui_right_column import Ui_RightColumn
+from .setup_main_window import *
+from gui.uis.pages.main_pages_ui import Ui_MainPages
+from gui.uis.columns.right_column_ui import Ui_RightColumn
 from gui.widgets.py_credits_bar.py_credits import PyCredits
 
-# PY WINDOW
+# 主窗口
 # ///////////////////////////////////////////////////////////////
 class UI_MainWindow(object):
     def setup_ui(self, parent):
         if not parent.objectName():
             parent.setObjectName("MainWindow")
 
-        # LOAD SETTINGS
+        # 导入设置
         # ///////////////////////////////////////////////////////////////
         settings = Settings()
         self.settings = settings.items
 
-        # LOAD THEME COLOR
+        # 导入主题颜色
         # ///////////////////////////////////////////////////////////////
         themes = Themes()
         self.themes = themes.items
 
-        # SET INITIAL PARAMETERS
+        # 设置初始参数
         parent.resize(self.settings["startup_size"][0], self.settings["startup_size"][1])
         parent.setMinimumSize(self.settings["minimum_size"][0], self.settings["minimum_size"][1])
 
-        # SET CENTRAL WIDGET
-        # Add central widget to app
+        # 设置中央小部件
+        # 向程序添加中央小部件
         # ///////////////////////////////////////////////////////////////
         self.central_widget = QWidget()
         self.central_widget.setStyleSheet(f'''
@@ -46,8 +46,8 @@ class UI_MainWindow(object):
         else:
             self.central_widget_layout.setContentsMargins(0,0,0,0)
         
-        # LOAD PY WINDOW CUSTOM WIDGET
-        # Add inside PyWindow "layout" all Widgets
+        # 导入自定义部件
+        # 在 PyWindow “layout” 中添加所有小部件
         # ///////////////////////////////////////////////////////////////
         self.window = PyWindow(
             parent,
@@ -56,15 +56,15 @@ class UI_MainWindow(object):
             text_color = self.themes["app_color"]["text_foreground"]
         )
         
-        # If disable custom title bar
+        # 自定义标题栏
         if not self.settings["custom_title_bar"]:
             self.window.set_stylesheet(border_radius = 0, border_size = 0)
         
-        # ADD PY WINDOW TO CENTRAL WIDGET
+        # 将 PyWindow 添加到中央小部件
         self.central_widget_layout.addWidget(self.window)
 
-        # ADD FRAME LEFT MENU
-        # Add here the custom left menu bar
+        # 添加左菜单框架
+        # 添加自定义左侧菜单栏
         # ///////////////////////////////////////////////////////////////
         left_menu_margin = self.settings["left_menu_content_margins"]
         left_menu_minimum = self.settings["lef_menu_size"]["minimum"]
@@ -72,7 +72,7 @@ class UI_MainWindow(object):
         self.left_menu_frame.setMaximumSize(left_menu_minimum + (left_menu_margin * 2), 17280)
         self.left_menu_frame.setMinimumSize(left_menu_minimum + (left_menu_margin * 2), 0)
 
-        # LEFT MENU LAYOUT
+        # 左菜单布局
         self.left_menu_layout = QHBoxLayout(self.left_menu_frame)
         self.left_menu_layout.setContentsMargins(
             left_menu_margin,
@@ -81,8 +81,7 @@ class UI_MainWindow(object):
             left_menu_margin
         )
 
-        # ADD LEFT MENU
-        # Add custom left menu here
+        # 添加自定义左侧菜单
         # ///////////////////////////////////////////////////////////////
         self.left_menu = PyLeftMenu(
             parent = self.left_menu_frame,
@@ -101,19 +100,18 @@ class UI_MainWindow(object):
         )
         self.left_menu_layout.addWidget(self.left_menu)
 
-        # ADD LEFT COLUMN
-        # Add here the left column with Stacked Widgets
+        # 添加带有堆叠小部件的左列
         # ///////////////////////////////////////////////////////////////
         self.left_column_frame = QFrame()
         self.left_column_frame.setMaximumWidth(self.settings["left_column_size"]["minimum"])
         self.left_column_frame.setMinimumWidth(self.settings["left_column_size"]["minimum"])
         self.left_column_frame.setStyleSheet(f"background: {self.themes['app_color']['bg_two']}")
 
-        # ADD LAYOUT TO LEFT COLUMN
+        # 向左列添加布局
         self.left_column_layout = QVBoxLayout(self.left_column_frame)
         self.left_column_layout.setContentsMargins(0,0,0,0)
 
-        # ADD CUSTOM LEFT MENU WIDGET
+        # 向左侧菜单添加自定义小部件
         self.left_column = PyLeftColumn(
             parent,
             app_parent = self.central_widget,
@@ -134,17 +132,16 @@ class UI_MainWindow(object):
         )
         self.left_column_layout.addWidget(self.left_column)
 
-        # ADD RIGHT WIDGETS
-        # Add here the right widgets
+        # 添加右侧小部件
         # ///////////////////////////////////////////////////////////////
         self.right_app_frame = QFrame()
 
-        # ADD RIGHT APP LAYOUT
+        # 添加右侧程序布局
         self.right_app_layout = QVBoxLayout(self.right_app_frame)
         self.right_app_layout.setContentsMargins(3,3,3,3)
         self.right_app_layout.setSpacing(6)
 
-        # ADD TITLE BAR FRAME
+        # 添加标题栏框架
         # ///////////////////////////////////////////////////////////////
         self.title_bar_frame = QFrame()
         self.title_bar_frame.setMinimumHeight(40)
@@ -152,7 +149,7 @@ class UI_MainWindow(object):
         self.title_bar_layout = QVBoxLayout(self.title_bar_frame)
         self.title_bar_layout.setContentsMargins(0,0,0,0)
         
-        # ADD CUSTOM TITLE BAR TO LAYOUT
+        # 添加自定义标题栏到布局
         self.title_bar = PyTitleBar(
             parent,
             logo_width = 100,
@@ -177,34 +174,34 @@ class UI_MainWindow(object):
         )
         self.title_bar_layout.addWidget(self.title_bar)
 
-        # ADD CONTENT AREA
+        # 添加连接区
         # ///////////////////////////////////////////////////////////////
         self.content_area_frame = QFrame()
 
-        # CREATE LAYOUT
+        # 新建布局
         self.content_area_layout = QHBoxLayout(self.content_area_frame)
         self.content_area_layout.setContentsMargins(0,0,0,0)
         self.content_area_layout.setSpacing(0)
 
-        # LEFT CONTENT
+        # 左连接
         self.content_area_left_frame = QFrame()
 
-        # IMPORT MAIN PAGES TO CONTENT AREA
+        # 导入主页面到连接区
         self.load_pages = Ui_MainPages()
         self.load_pages.setupUi(self.content_area_left_frame)
 
-        # RIGHT BAR
+        # 右侧栏
         self.right_column_frame = QFrame()
         self.right_column_frame.setMinimumWidth(self.settings["right_column_size"]["minimum"])
         self.right_column_frame.setMaximumWidth(self.settings["right_column_size"]["minimum"])
 
-        # IMPORT RIGHT COLUMN
+        # 导入右列
         # ///////////////////////////////////////////////////////////////
         self.content_area_right_layout = QVBoxLayout(self.right_column_frame)
         self.content_area_right_layout.setContentsMargins(5,5,5,5)
         self.content_area_right_layout.setSpacing(0)
 
-        # RIGHT BG
+        # 右侧背景
         self.content_area_right_bg_frame = QFrame()
         self.content_area_right_bg_frame.setObjectName("content_area_right_bg_frame")
         self.content_area_right_bg_frame.setStyleSheet(f'''
@@ -214,28 +211,28 @@ class UI_MainWindow(object):
         }}
         ''')
 
-        # ADD BG
+        # 添加背景
         self.content_area_right_layout.addWidget(self.content_area_right_bg_frame)
 
-        # ADD RIGHT PAGES TO RIGHT COLUMN
+        # 添加右页到右列
         self.right_column = Ui_RightColumn()
         self.right_column.setupUi(self.content_area_right_bg_frame)
 
-        # ADD TO LAYOUTS
+        # 添加到布局
         self.content_area_layout.addWidget(self.content_area_left_frame)
         self.content_area_layout.addWidget(self.right_column_frame)
 
-        # CREDITS / BOTTOM APP FRAME
+        # 底部版权信息框架
         # ///////////////////////////////////////////////////////////////
         self.credits_frame = QFrame()
         self.credits_frame.setMinimumHeight(26)
         self.credits_frame.setMaximumHeight(26)
 
-        # CREATE LAYOUT
+        # 创建布局
         self.credits_layout = QVBoxLayout(self.credits_frame)
         self.credits_layout.setContentsMargins(0,0,0,0)
 
-        # ADD CUSTOM WIDGET CREDITS
+        # 添加自定义版权信息小部件
         self.credits = PyCredits(
             bg_two = self.themes["app_color"]["bg_two"],
             copyright = self.settings["copyright"],
@@ -245,22 +242,22 @@ class UI_MainWindow(object):
             text_description_color = self.themes["app_color"]["text_description"]
         )
 
-        #  ADD TO LAYOUT
+        # 添加到布局
         self.credits_layout.addWidget(self.credits)
 
-        # ADD WIDGETS TO RIGHT LAYOUT
+        # 添加小部件到右布局
         # ///////////////////////////////////////////////////////////////
         self.right_app_layout.addWidget(self.title_bar_frame)
         self.right_app_layout.addWidget(self.content_area_frame)
         self.right_app_layout.addWidget(self.credits_frame)
         
-        # ADD WIDGETS TO "PyWindow"
-        # Add here your custom widgets or default widgets
+        # 添加小部件到 "PyWindow"
+        # 在这里添加您的自定义小部件或默认小部件
         # ///////////////////////////////////////////////////////////////
         self.window.layout.addWidget(self.left_menu_frame)
         self.window.layout.addWidget(self.left_column_frame)
         self.window.layout.addWidget(self.right_app_frame)
 
-        # ADD CENTRAL WIDGET AND SET CONTENT MARGINS
+        # 添加中央小部件并设置内容边距
         # ///////////////////////////////////////////////////////////////
         parent.setCentralWidget(self.central_widget)
