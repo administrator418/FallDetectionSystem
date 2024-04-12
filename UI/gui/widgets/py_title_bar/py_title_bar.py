@@ -12,9 +12,8 @@ from .py_title_button import PyTitleButton
 _is_maximized = False
 _old_size = QSize()
 
-# PY TITLE BAR
-# Top bar with move application, maximize, restore, minimize,
-# close buttons and extra buttons
+# 顶部栏
+# 具有移动应用程序、最大化、还原、最小化、关闭按钮和额外按钮的顶部栏
 # ///////////////////////////////////////////////////////////////
 class PyTitleBar(QWidget):
     # 信号
