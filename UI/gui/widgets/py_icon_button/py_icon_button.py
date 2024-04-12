@@ -47,10 +47,12 @@ class PyIconButton(QPushButton):
         self._context_color = context_color
         self._top_margin = top_margin
         self._is_active = is_active
+        # 设置属性
         self._set_bg_color = bg_color
         self._set_icon_path = icon_path
         self._set_icon_color = icon_color
         self._set_border_radius = radius
+        # 父级
         self._parent = parent
         self._app_parent = app_parent
 

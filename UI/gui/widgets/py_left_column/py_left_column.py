@@ -1,40 +1,13 @@
-# ///////////////////////////////////////////////////////////////
-#
-# BY: WANDERSON M.PIMENTA
-# PROJECT MADE WITH: Qt Designer and PySide6
-# V: 1.0.0
-#
-# This project can be used freely for all uses, as long as they maintain the
-# respective credits only in the Python scripts, any information in the visual
-# interface (GUI) can be modified without any implication.
-#
-# There are limitations on Qt licenses if you want to use your products
-# commercially, I recommend reading them on the official website:
-# https://doc.qt.io/qtforpython/licenses.html
-#
-# ///////////////////////////////////////////////////////////////
-
-# IMPORT QT CORE
-# ///////////////////////////////////////////////////////////////
 from PySide6.QtCore import *
 from PySide6.QtGui import *
 from PySide6.QtWidgets import *
 from PySide6.QtSvgWidgets import *
-
-# IMPORT CLOSE BUTTON
-# ///////////////////////////////////////////////////////////////
-from . py_left_button import *
-
-# IMPORT ICON
-# ///////////////////////////////////////////////////////////////
-from . py_icon import *
-
-# IMPORT LEFT COLUMN
-# ///////////////////////////////////////////////////////////////
+from .py_left_button import *
+from .py_icon import *
 from gui.uis.columns.ui_left_column import Ui_LeftColumn
 
 class PyLeftColumn(QWidget):
-    # SIGNALS
+    # 信号
     clicked = Signal(object)
     released = Signal(object)
 
@@ -60,7 +33,7 @@ class PyLeftColumn(QWidget):
     ):
         super().__init__()
 
-        # PARAMETERS
+        # 参数
         self._parent = parent
         self._app_parent = app_parent
         self._text_title = text_title
@@ -79,18 +52,18 @@ class PyLeftColumn(QWidget):
         self._icon_close_path = icon_close_path
         self._radius = radius
 
-        # SETUP UI
+        # 初始化UI
         self.setup_ui()
 
-        # ADD LEFT COLUMN TO BG FRAME
+        # 将左列添加到背景框架
         self.menus = Ui_LeftColumn()
         self.menus.setupUi(self.content_frame)
 
-        # CONNECT SIGNALS
+        # 信号连接
         self.btn_close.clicked.connect(self.btn_clicked)
         self.btn_close.released.connect(self.btn_released)
 
-    # TITLE LEFT COLUMN EMIT SIGNALS
+    # 左列标题发出信号
     # ///////////////////////////////////////////////////////////////
     def btn_clicked(self):
         self.clicked.emit(self.btn_close)
@@ -98,25 +71,25 @@ class PyLeftColumn(QWidget):
     def btn_released(self):
         self.released.emit(self.btn_close)
 
-    # WIDGETS
+    # 部件
     # ///////////////////////////////////////////////////////////////
     def setup_ui(self):
-        # BASE LAYOUT
+        # 基础布局
         self.base_layout = QVBoxLayout(self)
         self.base_layout.setContentsMargins(0,0,0,0)
         self.base_layout.setSpacing(0)
 
-        # TITLE FRAME
+        # 标题框架
         # ///////////////////////////////////////////////////////////////
         self.title_frame = QFrame()
         self.title_frame.setMaximumHeight(47)
         self.title_frame.setMinimumHeight(47)
 
-        # TITLE BASE LAYOUT 
+        # 标题基础布局
         self.title_base_layout = QVBoxLayout(self.title_frame)
         self.title_base_layout.setContentsMargins(5,3,5,3)
 
-        # TITLE BG
+        # 标题背景框架
         self.title_bg_frame = QFrame()
         self.title_bg_frame.setObjectName("title_bg_frame")
         self.title_bg_frame.setStyleSheet(f'''
@@ -126,12 +99,12 @@ class PyLeftColumn(QWidget):
         }}
         ''')
 
-        # LAYOUT TITLE BG
+        # 标题背景布局
         self.title_bg_layout = QHBoxLayout(self.title_bg_frame)
         self.title_bg_layout.setContentsMargins(5,5,5,5)
         self.title_bg_layout.setSpacing(3)
 
-        # ICON
+        # 图标
         self.icon_frame = QFrame()
         self.icon_frame.setFixedSize(30,30)
         self.icon_frame.setStyleSheet("background: none;")
@@ -141,7 +114,7 @@ class PyLeftColumn(QWidget):
         self.icon = PyIcon(self._icon_path, self._icon_color)
         self.icon_layout.addWidget(self.icon, Qt.AlignCenter, Qt.AlignCenter)
 
-        # LABEL
+        # 标题标签
         self.title_label = QLabel(self._text_title)
         self.title_label.setObjectName("title_label")
         self.title_label.setStyleSheet(f'''
@@ -153,11 +126,11 @@ class PyLeftColumn(QWidget):
         }}
         ''')
 
-        # BTN FRAME
+        # 按钮框架
         self.btn_frame = QFrame()
         self.btn_frame.setFixedSize(30,30)
         self.btn_frame.setStyleSheet("background: none;")
-        # CLOSE BUTTON
+        # 按钮关闭
         self.btn_close = PyLeftButton(
             self._parent,
             self._app_parent,
@@ -178,20 +151,20 @@ class PyLeftColumn(QWidget):
         self.btn_close.setParent(self.btn_frame)
         self.btn_close.setObjectName("btn_close_left_column")
 
-        # ADD TO TITLE LAYOUT
+        # 添加到标题背景布局
         self.title_bg_layout.addWidget(self.icon_frame)
         self.title_bg_layout.addWidget(self.title_label)
         self.title_bg_layout.addWidget(self.btn_frame)
 
-        # ADD TITLE BG TO LAYOUT
+        # 添加到标题基础布局
         self.title_base_layout.addWidget(self.title_bg_frame)
 
-        # CONTENT FRAME
+        # 内容框架
         # ///////////////////////////////////////////////////////////////
         self.content_frame = QFrame()
         self.content_frame.setStyleSheet("background: none")
 
-        # ADD TO LAYOUT
+        # 添加到基础布局
         # ///////////////////////////////////////////////////////////////
         self.base_layout.addWidget(self.title_frame)
         self.base_layout.addWidget(self.content_frame)

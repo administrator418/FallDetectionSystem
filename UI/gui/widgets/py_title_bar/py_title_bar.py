@@ -1,43 +1,13 @@
-# ///////////////////////////////////////////////////////////////
-#
-# BY: WANDERSON M.PIMENTA
-# PROJECT MADE WITH: Qt Designer and PySide6
-# V: 1.0.0
-#
-# This project can be used freely for all uses, as long as they maintain the
-# respective credits only in the Python scripts, any information in the visual
-# interface (GUI) can be modified without any implication.
-#
-# There are limitations on Qt licenses if you want to use your products
-# commercially, I recommend reading them on the official website:
-# https://doc.qt.io/qtforpython/licenses.html
-#
-# ///////////////////////////////////////////////////////////////
-
-# IMPORT QT CORE
-# ///////////////////////////////////////////////////////////////
 from PySide6.QtCore import *
 from PySide6.QtGui import *
 from PySide6.QtWidgets import *
 from PySide6.QtSvgWidgets import *
-
-# IMPORT FUNCTIONS
-# ///////////////////////////////////////////////////////////////
 from gui.core.functions import *
-
-# IMPORT SETTINGS
-# ///////////////////////////////////////////////////////////////
 from gui.core.json_settings import Settings
+from .py_div import PyDiv
+from .py_title_button import PyTitleButton
 
-# IMPORT DIV
-# ///////////////////////////////////////////////////////////////
-from . py_div import PyDiv
-
-# IMPORT BUTTON
-# ///////////////////////////////////////////////////////////////
-from . py_title_button import PyTitleButton
-
-# GLOBALS
+# 全局变量
 # ///////////////////////////////////////////////////////////////
 _is_maximized = False
 _old_size = QSize()
@@ -47,7 +17,7 @@ _old_size = QSize()
 # close buttons and extra buttons
 # ///////////////////////////////////////////////////////////////
 class PyTitleBar(QWidget):
-    # SIGNALS
+    # 信号
     clicked = Signal(object)
     released = Signal(object)
 
@@ -80,7 +50,7 @@ class PyTitleBar(QWidget):
         settings = Settings()
         self.settings = settings.items
 
-        # PARAMETERS
+        # 参数
         self._logo_image = logo_image
         self._dark_one = dark_one
         self._bg_color = bg_color
@@ -100,34 +70,34 @@ class PyTitleBar(QWidget):
         self._text_foreground = text_foreground
         self._is_custom_title_bar = is_custom_title_bar
 
-        # SETUP UI
+        # 初始化UI
         self.setup_ui()
 
-        # ADD BG COLOR
+        # 添加背景颜色
         self.bg.setStyleSheet(f"background-color: {bg_color}; border-radius: {radius}px;")
 
-        # SET LOGO AND WIDTH
+        # 设置图标和宽度
         self.top_logo.setMinimumWidth(logo_width)
         self.top_logo.setMaximumWidth(logo_width)
-        #self.top_logo.setPixmap(Functions.set_svg_image(logo_image))
+        # self.top_logo.setPixmap(Functions.set_svg_image(logo_image))
 
-        # MOVE WINDOW / MAXIMIZE / RESTORE
+        # 移动窗口/最大化/还原
         # ///////////////////////////////////////////////////////////////
         def moveWindow(event):
-            # IF MAXIMIZED CHANGE TO NORMAL
+            # 最大化
             if parent.isMaximized():
                 self.maximize_restore()
-                #self.resize(_old_size)
+                # self.resize(_old_size)
                 curso_x = parent.pos().x()
                 curso_y = event.globalPos().y() - QCursor.pos().y()
                 parent.move(curso_x, curso_y)
-            # MOVE WINDOW
+            # 移动窗口
             if event.buttons() == Qt.LeftButton:
                 parent.move(parent.pos() + event.globalPos() - parent.dragPos)
                 parent.dragPos = event.globalPos()
                 event.accept()
 
-        # MOVE APP WIDGETS
+        # 移动程序小部件
         if is_custom_title_bar:
             self.top_logo.mouseMoveEvent = moveWindow
             self.div_1.mouseMoveEvent = moveWindow
@@ -135,38 +105,37 @@ class PyTitleBar(QWidget):
             self.div_2.mouseMoveEvent = moveWindow
             self.div_3.mouseMoveEvent = moveWindow
 
-        # MAXIMIZE / RESTORE
+        # 最大化/还原
         if is_custom_title_bar:
             self.top_logo.mouseDoubleClickEvent = self.maximize_restore
             self.div_1.mouseDoubleClickEvent = self.maximize_restore
             self.title_label.mouseDoubleClickEvent = self.maximize_restore
             self.div_2.mouseDoubleClickEvent = self.maximize_restore
 
-        # ADD WIDGETS TO TITLE BAR
+        # 将小部件添加到标题栏
         # ///////////////////////////////////////////////////////////////
         self.bg_layout.addWidget(self.top_logo)
         self.bg_layout.addWidget(self.div_1)
         self.bg_layout.addWidget(self.title_label)
         self.bg_layout.addWidget(self.div_2)
 
-        # ADD BUTTONS BUTTONS
+        # 添加按钮
         # ///////////////////////////////////////////////////////////////
-        # Functions
         self.minimize_button.released.connect(lambda: parent.showMinimized())
         self.maximize_restore_button.released.connect(lambda: self.maximize_restore())
         self.close_button.released.connect(lambda: parent.close())
 
-        # Extra BTNs layout
+        # 额外按钮布局
         self.bg_layout.addLayout(self.custom_buttons_layout)
 
-        # ADD Buttons
+        # 添加按钮
         if is_custom_title_bar:            
             self.bg_layout.addWidget(self.minimize_button)
             self.bg_layout.addWidget(self.maximize_restore_button)
             self.bg_layout.addWidget(self.close_button)
 
-    # ADD BUTTONS TO TITLE BAR
-    # Add btns and emit signals
+    # 将按钮添加到标题栏
+    # 添加按钮和发射信号
     # ///////////////////////////////////////////////////////////////
     def add_menus(self, parameters):
         if parameters != None and len(parameters) > 0:
@@ -197,14 +166,14 @@ class PyTitleBar(QWidget):
                 self.menu.clicked.connect(self.btn_clicked)
                 self.menu.released.connect(self.btn_released)
 
-                # ADD TO LAYOUT
+                # 添加到布局
                 self.custom_buttons_layout.addWidget(self.menu)
 
-            # ADD DIV
+            # 添加分隔
             if self._is_custom_title_bar:
                 self.custom_buttons_layout.addWidget(self.div_3)
 
-    # TITLE BAR MENU EMIT SIGNALS
+    # 标题栏发射信号
     # ///////////////////////////////////////////////////////////////
     def btn_clicked(self):
         self.clicked.emit(self.menu)
@@ -212,19 +181,19 @@ class PyTitleBar(QWidget):
     def btn_released(self):
         self.released.emit(self.menu)
 
-    # SET TITLE BAR TEXT
+    # 设置标题栏文本
     # ///////////////////////////////////////////////////////////////
     def set_title(self, title):
         self.title_label.setText(title)
 
-    # MAXIMIZE / RESTORE
+    # 最大化/还原
     # maximize and restore parent window
     # ///////////////////////////////////////////////////////////////
     def maximize_restore(self, e = None):
         global _is_maximized
         global _old_size
         
-        # CHANGE UI AND RESIZE GRIP
+        # 更改UI,调整手柄
         def change_ui():
             if _is_maximized:
                 self._parent.ui.central_widget_layout.setContentsMargins(0,0,0,0)
@@ -239,7 +208,7 @@ class PyTitleBar(QWidget):
                     Functions.set_svg_icon("icon_maximize.svg")
                 )
 
-        # CHECK EVENT
+        # 检查事件
         if self._parent.isMaximized():
             _is_maximized = False
             self._parent.showNormal()
@@ -250,27 +219,27 @@ class PyTitleBar(QWidget):
             self._parent.showMaximized()
             change_ui()
 
-    # SETUP APP
+    # 设置程序
     # ///////////////////////////////////////////////////////////////
     def setup_ui(self):
-        # ADD MENU LAYOUT
+        # 添加菜单布局
         self.title_bar_layout = QVBoxLayout(self)
         self.title_bar_layout.setContentsMargins(0,0,0,0)
 
-        # ADD BG
+        # 添加背景
         self.bg = QFrame()
 
-        # ADD BG LAYOUT
+        # 添加背景布局
         self.bg_layout = QHBoxLayout(self.bg)
         self.bg_layout.setContentsMargins(10,0,5,0)
         self.bg_layout.setSpacing(0)
 
-        # DIVS
+        # 分割
         self.div_1 = PyDiv(self._div_color)
         self.div_2 = PyDiv(self._div_color)
         self.div_3 = PyDiv(self._div_color)
 
-        # LEFT FRAME WITH MOVE APP
+        # 在应用程序的标题栏中创建一个视觉识别元素
         self.top_logo = QLabel()
         self.top_logo_layout = QVBoxLayout(self.top_logo)
         self.top_logo_layout.setContentsMargins(0,0,0,0)
@@ -278,17 +247,17 @@ class PyTitleBar(QWidget):
         self.logo_svg.load(Functions.set_svg_image(self._logo_image))
         self.top_logo_layout.addWidget(self.logo_svg, Qt.AlignCenter, Qt.AlignCenter)
 
-        # TITLE LABEL
+        # 标题标签
         self.title_label = QLabel()
         self.title_label.setAlignment(Qt.AlignVCenter)
         self.title_label.setStyleSheet(f'font: {self._title_size}pt "{self._font_family}"')
 
-        # CUSTOM BUTTONS LAYOUT
+        # 自定义按钮布局
         self.custom_buttons_layout = QHBoxLayout()
         self.custom_buttons_layout.setContentsMargins(0,0,0,0)
         self.custom_buttons_layout.setSpacing(3)
 
-        # MINIMIZE BUTTON
+        # 最小化按钮
         self.minimize_button = PyTitleButton(
             self._parent,
             self._app_parent,
@@ -307,7 +276,7 @@ class PyTitleBar(QWidget):
             icon_path = Functions.set_svg_icon("icon_minimize.svg")
         )
 
-        # MAXIMIZE / RESTORE BUTTON
+        # 最大化/还原
         self.maximize_restore_button = PyTitleButton(
             self._parent,
             self._app_parent,
@@ -326,7 +295,7 @@ class PyTitleBar(QWidget):
             icon_path = Functions.set_svg_icon("icon_maximize.svg")
         )
 
-        # CLOSE BUTTON
+        # 关闭按钮
         self.close_button = PyTitleButton(
             self._parent,
             self._app_parent,
@@ -345,5 +314,5 @@ class PyTitleBar(QWidget):
             icon_path = Functions.set_svg_icon("icon_close.svg")
         )
 
-        # ADD TO LAYOUT
+        # 添加到布局
         self.title_bar_layout.addWidget(self.bg)

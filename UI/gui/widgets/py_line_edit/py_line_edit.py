@@ -1,27 +1,9 @@
-# ///////////////////////////////////////////////////////////////
-#
-# BY: WANDERSON M.PIMENTA
-# PROJECT MADE WITH: Qt Designer and PySide6
-# V: 1.0.0
-#
-# This project can be used freely for all uses, as long as they maintain the
-# respective credits only in the Python scripts, any information in the visual
-# interface (GUI) can be modified without any implication.
-#
-# There are limitations on Qt licenses if you want to use your products
-# commercially, I recommend reading them on the official website:
-# https://doc.qt.io/qtforpython/licenses.html
-#
-# ///////////////////////////////////////////////////////////////
-
-# IMPORT QT CORE
-# ///////////////////////////////////////////////////////////////
 from PySide6.QtCore import *
 from PySide6.QtGui import *
 from PySide6.QtWidgets import *
 from PySide6.QtSvgWidgets import *
 
-# STYLE
+# 样式
 # ///////////////////////////////////////////////////////////////
 style = '''
 QLineEdit {{
@@ -40,7 +22,7 @@ QLineEdit:focus {{
 }}
 '''
 
-# PY PUSH BUTTON
+# 自定义文本输入框
 # ///////////////////////////////////////////////////////////////
 class PyLineEdit(QLineEdit):
     def __init__(
@@ -57,13 +39,13 @@ class PyLineEdit(QLineEdit):
     ):
         super().__init__()
 
-        # PARAMETERS
+        # 参数
         if text:
             self.setText(text)
         if place_holder_text:
             self.setPlaceholderText(place_holder_text)
 
-        # SET STYLESHEET
+        # 设置样式表
         self.set_stylesheet(
             radius,
             border_size,
@@ -74,7 +56,7 @@ class PyLineEdit(QLineEdit):
             context_color
         )
 
-    # SET STYLESHEET
+    # 设置样式表
     def set_stylesheet(
         self,
         radius,
@@ -85,7 +67,7 @@ class PyLineEdit(QLineEdit):
         bg_color_active,
         context_color
     ):
-        # APPLY STYLESHEET
+        # 应用样式表
         style_format = style.format(
             _radius = radius,
             _border_size = border_size,           

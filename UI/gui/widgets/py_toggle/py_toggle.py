@@ -1,21 +1,3 @@
-# ///////////////////////////////////////////////////////////////
-#
-# BY: WANDERSON M.PIMENTA
-# PROJECT MADE WITH: Qt Designer and PySide6
-# V: 1.0.0
-#
-# This project can be used freely for all uses, as long as they maintain the
-# respective credits only in the Python scripts, any information in the visual
-# interface (GUI) can be modified without any implication.
-#
-# There are limitations on Qt licenses if you want to use your products
-# commercially, I recommend reading them on the official website:
-# https://doc.qt.io/qtforpython/licenses.html
-#
-# ///////////////////////////////////////////////////////////////
-
-# IMPORT QT CORE
-# ///////////////////////////////////////////////////////////////
 from PySide6.QtCore import *
 from PySide6.QtGui import *
 from PySide6.QtWidgets import *
@@ -34,7 +16,7 @@ class PyToggle(QCheckBox):
         self.setFixedSize(width, 28)
         self.setCursor(Qt.PointingHandCursor)
 
-        # COLORS
+        # 颜色
         self._bg_color = bg_color
         self._circle_color = circle_color
         self._active_color = active_color
@@ -54,7 +36,7 @@ class PyToggle(QCheckBox):
         self._position = pos
         self.update()
 
-    # START STOP ANIMATION
+    # 设置动画
     def setup_animation(self, value):
         self.animation.stop()
         if value:
@@ -71,10 +53,10 @@ class PyToggle(QCheckBox):
         p.setRenderHint(QPainter.Antialiasing)
         p.setFont(QFont("Segoe UI", 9))
 
-        # SET PEN
+        # 设置无边框笔,因为这里只需要填充颜色。
         p.setPen(Qt.NoPen)
 
-        # DRAW RECT
+        # 根据开关的状态绘制背景矩形和滑块椭圆
         rect = QRect(0, 0, self.width(), self.height())        
 
         if not self.isChecked():

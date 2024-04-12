@@ -1,36 +1,9 @@
-# ///////////////////////////////////////////////////////////////
-#
-# BY: WANDERSON M.PIMENTA
-# PROJECT MADE WITH: Qt Designer and PySide6
-# V: 1.0.0
-#
-# This project can be used freely for all uses, as long as they maintain the
-# respective credits only in the Python scripts, any information in the visual
-# interface (GUI) can be modified without any implication.
-#
-# There are limitations on Qt licenses if you want to use your products
-# commercially, I recommend reading them on the official website:
-# https://doc.qt.io/qtforpython/licenses.html
-#
-# ///////////////////////////////////////////////////////////////
-
-# IMPORT PACKAGES AND MODULES
-# ///////////////////////////////////////////////////////////////
-
-# IMPORT QT CORE
-# ///////////////////////////////////////////////////////////////
 from PySide6.QtCore import *
 from PySide6.QtGui import *
 from PySide6.QtWidgets import *
 from PySide6.QtSvgWidgets import *
-
-# IMPORT SETTINGS
-# ///////////////////////////////////////////////////////////////
 from gui.core.json_settings import Settings
-
-# IMPORT STYLES
-# ///////////////////////////////////////////////////////////////
-from . styles import Styles
+from .styles import Styles
 
 # PY WINDOW
 # ///////////////////////////////////////////////////////////////
@@ -51,12 +24,12 @@ class PyWindow(QFrame):
     ):
         super().__init__()
 
-        # LOAD SETTINGS
+        # 导入设置
         # ///////////////////////////////////////////////////////////////
         settings = Settings()
         self.settings = settings.items
 
-        # PROPERTIES
+        # 属性
         # ///////////////////////////////////////////////////////////////
         self.parent = parent
         self.layout = layout
@@ -69,26 +42,26 @@ class PyWindow(QFrame):
         self.border_color = border_color
         self.enable_shadow = enable_shadow
 
-        # OBJECT NAME
+        # 对象名称
         # ///////////////////////////////////////////////////////////////   
         self.setObjectName("pod_bg_app")
 
-        # APPLY STYLESHEET
+        # 应用样式表
         # /////////////////////////////////////////////////////////////// 
         self.set_stylesheet()
 
-        # ADD LAYOUT
+        # 添加布局
         # ///////////////////////////////////////////////////////////////
         if layout == Qt.Vertical:
-            # VERTICAL LAYOUT
+            # 垂直布局
             self.layout = QHBoxLayout(self)
         else:
-            # HORIZONTAL LAYOUT
+            # 水平布局
             self.layout = QHBoxLayout(self)
         self.layout.setContentsMargins(margin, margin, margin, margin)
         self.layout.setSpacing(spacing)
 
-        # ADD DROP SHADOW
+        # 添加阴影
         # ///////////////////////////////////////////////////////////////
         if self.settings["custom_title_bar"]:
             if enable_shadow:
@@ -99,7 +72,7 @@ class PyWindow(QFrame):
                 self.shadow.setColor(QColor(0, 0, 0, 160))
                 self.setGraphicsEffect(self.shadow)
 
-    # APPLY AND UPDATE STYLESHEET
+    # 更新并应用样式表
     # ///////////////////////////////////////////////////////////////
     def set_stylesheet(
         self,
@@ -110,27 +83,27 @@ class PyWindow(QFrame):
         text_color = None,
         text_font = None
     ):
-        # CHECK BG COLOR
+        # 检查背景颜色
         if bg_color != None: internal_bg_color = bg_color
         else: internal_bg_color = self.bg_color
 
-        # CHECK BORDER RADIUS
+        # 检查边界半径
         if border_radius != None: internal_border_radius = border_radius
         else: internal_border_radius = self.border_radius
 
-        # CHECK BORDER SIZE
+        # 检查边界大小
         if border_size != None: internal_border_size = border_size
         else: internal_border_size = self.border_size
 
-        # CHECK BORDER COLOR
-        if text_color != None: internal_text_color = text_color
-        else: internal_text_color = self.text_color
-
-        # CHECK TEXT COLOR
+        # 检查边界颜色
         if border_color != None: internal_border_color = border_color
         else: internal_border_color = self.border_color
 
-        # CHECK TEXT COLOR
+        # 检查文本颜色
+        if text_color != None: internal_text_color = text_color
+        else: internal_text_color = self.text_color
+
+        # 检查文本字体
         if text_font != None: internal_text_font = text_font
         else: internal_text_font = self.text_font
 

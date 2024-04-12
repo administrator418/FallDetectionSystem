@@ -1,39 +1,15 @@
-# ///////////////////////////////////////////////////////////////
-#
-# BY: WANDERSON M.PIMENTA
-# PROJECT MADE WITH: Qt Designer and PySide6
-# V: 1.0.0
-#
-# This project can be used freely for all uses, as long as they maintain the
-# respective credits only in the Python scripts, any information in the visual
-# interface (GUI) can be modified without any implication.
-#
-# There are limitations on Qt licenses if you want to use your products
-# commercially, I recommend reading them on the official website:
-# https://doc.qt.io/qtforpython/licenses.html
-#
-# ///////////////////////////////////////////////////////////////
-
-# IMPORT QT CORE
-# ///////////////////////////////////////////////////////////////
 from PySide6.QtCore import *
 from PySide6.QtGui import *
 from PySide6.QtWidgets import *
 from PySide6.QtSvgWidgets import *
-
-# IMPORT BUTTON AND DIV
-# ///////////////////////////////////////////////////////////////
-from . py_left_menu_button import PyLeftMenuButton
-from . py_div import PyDiv
-
-# IMPORT FUNCTIONS
-# ///////////////////////////////////////////////////////////////
+from .py_left_menu_button import PyLeftMenuButton
+from .py_div import PyDiv
 from gui.core.functions import *
 
-# PY LEFT MENU
+# 左侧菜单
 # ///////////////////////////////////////////////////////////////
 class PyLeftMenu(QWidget):
-    # SIGNALS
+    # 信号
     clicked = Signal(object)
     released = Signal(object)
 
@@ -63,7 +39,7 @@ class PyLeftMenu(QWidget):
     ):
         super().__init__()
 
-        # PROPERTIES
+        # 属性
         # ///////////////////////////////////////////////////////////////
         self._dark_one = dark_one
         self._dark_three = dark_three
@@ -83,17 +59,17 @@ class PyLeftMenu(QWidget):
         self._icon_path = Functions.set_svg_icon(icon_path)
         self._icon_path_close = Functions.set_svg_icon(icon_path_close)
 
-        # SET PARENT
+        # 设置父级
         self._parent = parent
         self._app_parent = app_parent
 
-        # SETUP WIDGETS
+        # 初始化UI
         self.setup_ui()
 
-        # SET BG COLOR
+        # 设置背景颜色
         self.bg.setStyleSheet(f"background: {dark_one}; border-radius: {radius};")
 
-        # TOGGLE BUTTON AND DIV MENUS
+        # 切换按钮和分割菜单
         # ///////////////////////////////////////////////////////////////
         self.toggle_button = PyLeftMenuButton(
             app_parent, 
@@ -115,19 +91,18 @@ class PyLeftMenu(QWidget):
         self.toggle_button.clicked.connect(self.toggle_animation)
         self.div_top = PyDiv(dark_four)
 
-        # ADD TO TOP LAYOUT
+        # 添加到顶部布局
         # ///////////////////////////////////////////////////////////////
         self.top_layout.addWidget(self.toggle_button)
         self.top_layout.addWidget(self.div_top)
 
-        # ADD TO BOTTOM LAYOUT
+        # 添加到底部布局
         # ///////////////////////////////////////////////////////////////
         self.div_bottom = PyDiv(dark_four)
         self.div_bottom.hide()
         self.bottom_layout.addWidget(self.div_bottom)
 
-    # ADD BUTTONS TO LEFT MENU
-    # Add btns and emit signals
+    # 向左侧菜单添加按钮并发出信号
     # ///////////////////////////////////////////////////////////////
     def add_menus(self, parameters):
         if parameters != None:
@@ -161,14 +136,14 @@ class PyLeftMenu(QWidget):
                 self.menu.clicked.connect(self.btn_clicked)
                 self.menu.released.connect(self.btn_released)
 
-                # ADD TO LAYOUT
+                # 添加到顶部或底部布局
                 if _show_top:
                     self.top_layout.addWidget(self.menu)
                 else:
                     self.div_bottom.show()
                     self.bottom_layout.addWidget(self.menu)
 
-    # LEFT MENU EMIT SIGNALS
+    # 按钮点击发出信号
     # ///////////////////////////////////////////////////////////////
     def btn_clicked(self):
         self.clicked.emit(self.menu)
@@ -176,10 +151,10 @@ class PyLeftMenu(QWidget):
     def btn_released(self):
         self.released.emit(self.menu)
 
-    # EXPAND / RETRACT LEF MENU
+    # 展开/收起左侧菜单
     # ///////////////////////////////////////////////////////////////
     def toggle_animation(self):
-        # CREATE ANIMATION
+        # 创建动画
         self.animation = QPropertyAnimation(self._parent, b"minimumWidth")
         self.animation.stop()
         if self.width() == self._minimum_width:
@@ -196,7 +171,7 @@ class PyLeftMenu(QWidget):
         self.animation.setDuration(self._duration_time)
         self.animation.start()
 
-    # SELECT ONLY ONE BTN
+    # 选择唯一按钮
     # ///////////////////////////////////////////////////////////////
     def select_only_one(self, widget: str):
         for btn in self.findChildren(QPushButton):
@@ -205,7 +180,7 @@ class PyLeftMenu(QWidget):
             else:
                 btn.set_active(False)
 
-    # SELECT ONLY ONE TAB BTN
+    # 选择唯一选项卡按钮
     # ///////////////////////////////////////////////////////////////
     def select_only_one_tab(self, widget: str):
         for btn in self.findChildren(QPushButton):
@@ -214,53 +189,53 @@ class PyLeftMenu(QWidget):
             else:
                 btn.set_active_tab(False)
 
-    # DESELECT ALL BTNs
+    # 取消所有按钮
     # ///////////////////////////////////////////////////////////////
     def deselect_all(self):
         for btn in self.findChildren(QPushButton):
             btn.set_active(False)
 
-    # DESELECT ALL TAB BTNs
+    # 取消所有选项卡按钮
     # ///////////////////////////////////////////////////////////////
     def deselect_all_tab(self):
         for btn in self.findChildren(QPushButton):
             btn.set_active_tab(False)
 
-    # SETUP APP
+    # 设置程序
     # ///////////////////////////////////////////////////////////////
     def setup_ui(self):
-        # ADD MENU LAYOUT
+        # 添加菜单布局
         self.left_menu_layout = QVBoxLayout(self)
         self.left_menu_layout.setContentsMargins(0,0,0,0)
 
-        # ADD BG
+        # 背景框架
         self.bg = QFrame()
 
-        # TOP FRAME
+        # 顶部框架
         self.top_frame = QFrame()
 
-        # BOTTOM FRAME
+        # 底部框架
         self.bottom_frame = QFrame()
 
-        # ADD LAYOUTS
+        # 添加布局
         self._layout = QVBoxLayout(self.bg)
         self._layout.setContentsMargins(0,0,0,0)
 
-        # TOP LAYOUT
+        # 顶部布局
         self.top_layout = QVBoxLayout(self.top_frame)
         self.top_layout.setContentsMargins(0,0,0,0)
         self.top_layout.setSpacing(1)
 
-        # BOTTOM LAYOUT
+        # 底部布局
         self.bottom_layout = QVBoxLayout(self.bottom_frame)
         self.bottom_layout.setContentsMargins(0,0,0,8)
         self.bottom_layout.setSpacing(1)
 
-        # ADD TOP AND BOTTOM FRAME
+        # 添加到布局
         self._layout.addWidget(self.top_frame, 0, Qt.AlignTop)
         self._layout.addWidget(self.bottom_frame, 0, Qt.AlignBottom)
 
-        # ADD BG TO LAYOUT
+        # 添加背景到菜单布局
         self.left_menu_layout.addWidget(self.bg)
 
         

@@ -30,12 +30,12 @@ class PyLeftButton(QPushButton):
     ):
         super().__init__()
         
-        # SET DEFAULT PARAMETERS
+        # 设置默认参数
         self.setFixedSize(width, height)
         self.setCursor(Qt.PointingHandCursor)
         self.setObjectName(btn_id)
 
-        # PROPERTIES
+        # 属性
         self._bg_color = bg_color
         self._bg_color_hover = bg_color_hover
         self._bg_color_pressed = bg_color_pressed        
@@ -46,16 +46,16 @@ class PyLeftButton(QPushButton):
         self._context_color = context_color
         self._top_margin = self.height() + 6
         self._is_active = is_active
-        # Set Parameters
+        # 设置属性
         self._set_bg_color = bg_color
         self._set_icon_path = icon_path
         self._set_icon_color = icon_color
         self._set_border_radius = radius
-        # Parent
+        # 父级
         self._parent = parent
         self._app_parent = app_parent
 
-        # TOOLTIP
+        # 工具提示设置(默认隐藏)
         self._tooltip_text = tooltip_text
         self._tooltip = _ToolTip(
             app_parent,
@@ -66,34 +66,33 @@ class PyLeftButton(QPushButton):
         )
         self._tooltip.hide()
 
-    # SET ACTIVE MENU
+    # 设置激活状态
     # ///////////////////////////////////////////////////////////////
     def set_active(self, is_active):
         self._is_active = is_active
         self.repaint()
 
-    # RETURN IF IS ACTIVE MENU
+    # 返回激活状态
     # ///////////////////////////////////////////////////////////////
     def is_active(self):
         return self._is_active
 
-    # PAINT EVENT
-    # painting the button and the icon
+    # 绘制事件
+    # 绘制按钮和图标
     # ///////////////////////////////////////////////////////////////
     def paintEvent(self, event):
-        # PAINTER
+        # 初始化绘图器
         paint = QPainter()
         paint.begin(self)
         paint.setRenderHint(QPainter.RenderHint.Antialiasing)
         
+        # 根据激活状态使用不同的填充颜色
         if self._is_active:
-            # BRUSH
             brush = QBrush(QColor(self._bg_color_pressed))
         else:
-            # BRUSH
             brush = QBrush(QColor(self._set_bg_color))
 
-        # CREATE RECTANGLE
+        # 绘制圆角矩形
         rect = QRect(0, 0, self.width(), self.height())
         paint.setPen(Qt.NoPen)
         paint.setBrush(brush)
@@ -103,14 +102,13 @@ class PyLeftButton(QPushButton):
             self._set_border_radius
         )
 
-        # DRAW ICONS
+        # 绘制图标
         self.icon_paint(paint, self._set_icon_path, rect)
 
-        # END PAINTER
+        # 结束绘制
         paint.end()
 
-    # CHANGE STYLES
-    # Functions with custom styles
+    # 根据不同的鼠标事件改变按钮的背景和图标颜色
     # ///////////////////////////////////////////////////////////////
     def change_style(self, event):
         if event == QEvent.Enter:
@@ -130,24 +128,21 @@ class PyLeftButton(QPushButton):
             self._set_icon_color = self._icon_color_hover
             self.repaint()
 
-    # MOUSE OVER
-    # Event triggered when the mouse is over the BTN
+    # 鼠标进入
     # ///////////////////////////////////////////////////////////////
     def enterEvent(self, event):
         self.change_style(QEvent.Enter)
         self.move_tooltip()
         self._tooltip.show()
 
-    # MOUSE LEAVE
-    # Event fired when the mouse leaves the BTN
+    # 鼠标离开
     # ///////////////////////////////////////////////////////////////
     def leaveEvent(self, event):
         self.change_style(QEvent.Leave)
         self.move_tooltip()
         self._tooltip.hide()
 
-    # MOUSE PRESS
-    # Event triggered when the left button is pressed
+    # 鼠标按下
     # ///////////////////////////////////////////////////////////////
     def mousePressEvent(self, event):
         if event.button() == Qt.LeftButton:
@@ -157,8 +152,7 @@ class PyLeftButton(QPushButton):
             # EMIT SIGNAL
             return self.clicked.emit()
 
-    # MOUSE RELEASED
-    # Event triggered after the mouse button is released
+    # 鼠标释放
     # ///////////////////////////////////////////////////////////////
     def mouseReleaseEvent(self, event):
         if event.button() == Qt.LeftButton:
@@ -166,7 +160,7 @@ class PyLeftButton(QPushButton):
             # EMIT SIGNAL
             return self.released.emit()
 
-    # DRAW ICON WITH COLORS
+    # 绘制图标
     # ///////////////////////////////////////////////////////////////
     def icon_paint(self, qp, image, rect):
         icon = QPixmap(image)
@@ -183,35 +177,34 @@ class PyLeftButton(QPushButton):
         )        
         painter.end()
 
-    # SET ICON
+    # 设置图标
     # ///////////////////////////////////////////////////////////////
     def set_icon(self, icon_path):
         self._set_icon_path = icon_path
         self.repaint()
 
-    # MOVE TOOLTIP
+    # 计算并调整工具提示的位置, 使其基于按钮的位置进行偏移
     # ///////////////////////////////////////////////////////////////
     def move_tooltip(self):
-        # GET MAIN WINDOW PARENT
+        # 获取主窗口的位置
         gp = self.mapToGlobal(QPoint(0, 0))
 
-        # SET WIDGET TO GET POSTION
-        # Return absolute position of widget inside app
+        # 设置小部件以获取位置
+        # 返回应用程序内部部件的绝对位置
         pos = self._parent.mapFromGlobal(gp)
 
-        # FORMAT POSITION
-        # Adjust tooltip position with offset
+        # 格式化位置
+        # 使用偏移调整工具提示位置
         pos_x = (pos.x() - self._tooltip.width()) + self.width() + 5
         pos_y = pos.y() + self._top_margin
 
-        # SET POSITION TO WIDGET
-        # Move tooltip position
+        # 移动位置
         self._tooltip.move(pos_x, pos_y)
 
-# TOOLTIP
+# 具有自定义样式和阴影效果的工具提示标签
 # ///////////////////////////////////////////////////////////////
 class _ToolTip(QLabel):
-    # TOOLTIP / LABEL StyleSheet
+    # 样式表
     style_tooltip = """ 
     QLabel {{		
         background-color: {_dark_one};	
@@ -234,7 +227,7 @@ class _ToolTip(QLabel):
     ):
         QLabel.__init__(self)
 
-        # LABEL SETUP
+        # 设置标签样式和属性
         style = self.style_tooltip.format(
             _dark_one = dark_one,
             _context_color = context_color,
@@ -247,7 +240,7 @@ class _ToolTip(QLabel):
         self.setText(tooltip)
         self.adjustSize()
 
-        # SET DROP SHADOW
+        # 添加阴影效果
         self.shadow = QGraphicsDropShadowEffect(self)
         self.shadow.setBlurRadius(30)
         self.shadow.setXOffset(0)

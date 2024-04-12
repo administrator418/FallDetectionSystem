@@ -1,35 +1,11 @@
-# ///////////////////////////////////////////////////////////////
-#
-# BY: WANDERSON M.PIMENTA
-# PROJECT MADE WITH: Qt Designer and PySide6
-# V: 1.0.0
-#
-# This project can be used freely for all uses, as long as they maintain the
-# respective credits only in the Python scripts, any information in the visual
-# interface (GUI) can be modified without any implication.
-#
-# There are limitations on Qt licenses if you want to use your products
-# commercially, I recommend reading them on the official website:
-# https://doc.qt.io/qtforpython/licenses.html
-#
-# ///////////////////////////////////////////////////////////////
-
-# IMPORT PACKAGES AND MODULES
-# ///////////////////////////////////////////////////////////////
 import os
-
-# IMPORT QT CORE
-# ///////////////////////////////////////////////////////////////
 from PySide6.QtCore import *
 from PySide6.QtGui import *
 from PySide6.QtWidgets import *
 from PySide6.QtSvgWidgets import *
-
-# IMPORT FUNCTIONS
-# ///////////////////////////////////////////////////////////////
 from gui.core.functions import *
 
-# CUSTOM LEFT MENU
+# 自定义左侧菜单
 # ///////////////////////////////////////////////////////////////
 class PyLeftMenuButton(QPushButton):
     def __init__(
@@ -63,11 +39,11 @@ class PyLeftMenuButton(QPushButton):
         self.setMinimumHeight(50)
         self.setObjectName(btn_id)
 
-        # APP PATH
+        # app path
         self._icon_path = Functions.set_svg_icon(icon_path)
         self._icon_active_menu = Functions.set_svg_icon(icon_active_menu)
 
-        # PROPERTIES
+        # 属性
         self._margin = margin
         self._dark_one = dark_one
         self._dark_three = dark_three
@@ -78,8 +54,8 @@ class PyLeftMenuButton(QPushButton):
         self._icon_color_hover = icon_color_hover
         self._icon_color_pressed = icon_color_pressed
         self._icon_color_active = icon_color_active
-        self._set_icon_color = self._icon_color # Set icon color
-        self._set_bg_color = self._dark_one # Set BG color
+        self._set_icon_color = self._icon_color # 设置图标颜色
+        self._set_bg_color = self._dark_one # 设置背景颜色
         self._set_text_foreground = text_foreground
         self._set_text_active = text_active
         self._parent = app_parent
@@ -87,7 +63,7 @@ class PyLeftMenuButton(QPushButton):
         self._is_active_tab = is_active_tab
         self._is_toggle_active = is_toggle_active
 
-        # TOOLTIP
+        # 工具提示设置(默认隐藏)
         self._tooltip_text = tooltip_text
         self.tooltip = _ToolTip(
             app_parent,
@@ -98,17 +74,17 @@ class PyLeftMenuButton(QPushButton):
         )
         self.tooltip.hide()
 
-    # PAINT EVENT
+    # 绘制事件
     # ///////////////////////////////////////////////////////////////
     def paintEvent(self, event):
-        # PAINTER
+        # 初始化绘制器
         p = QPainter()
         p.begin(self)
         p.setRenderHint(QPainter.Antialiasing)
         p.setPen(Qt.NoPen)
         p.setFont(self.font())
 
-        # RECTANGLES
+        # 定义矩形区域
         rect = QRect(4, 5, self.width(), self.height() - 10)
         rect_inside = QRect(4, 5, self.width() - 8, self.height() - 10)
         rect_icon = QRect(0, 0, 50, self.height())
@@ -116,83 +92,84 @@ class PyLeftMenuButton(QPushButton):
         rect_inside_active = QRect(7, 5, self.width(), self.height() - 10)
         rect_text = QRect(45, 0, self.width() - 50, self.height())
 
+        # 绘制不同状态
         if self._is_active:
-            # DRAW BG BLUE
+            # 绘制蓝色背景
             p.setBrush(QColor(self._context_color))
             p.drawRoundedRect(rect_blue, 8, 8)
 
-            # BG INSIDE
+            # 绘制内部背景
             p.setBrush(QColor(self._bg_one))
             p.drawRoundedRect(rect_inside_active, 8, 8)
 
-            # DRAW ACTIVE
+            # 绘制激活
             icon_path = self._icon_active_menu
             app_path = os.path.abspath(os.getcwd())
             icon_path = os.path.normpath(os.path.join(app_path, icon_path))
             self._set_icon_color = self._icon_color_active
             self.icon_active(p, icon_path, self.width())
 
-            # DRAW TEXT
+            # 绘制文本
             p.setPen(QColor(self._set_text_active))
             p.drawText(rect_text, Qt.AlignVCenter, self.text())
 
-            # DRAW ICONS
+            # 绘制图标
             self.icon_paint(p, self._icon_path, rect_icon, self._set_icon_color) 
 
         elif self._is_active_tab:
-            # DRAW BG BLUE
+            # 绘制蓝色背景
             p.setBrush(QColor(self._dark_four))
             p.drawRoundedRect(rect_blue, 8, 8)
 
-            # BG INSIDE
+            # 绘制内部背景
             p.setBrush(QColor(self._bg_one))
             p.drawRoundedRect(rect_inside_active, 8, 8)
 
-            # DRAW ACTIVE
+            # 绘制激活
             icon_path = self._icon_active_menu
             app_path = os.path.abspath(os.getcwd())
             icon_path = os.path.normpath(os.path.join(app_path, icon_path))
             self._set_icon_color = self._icon_color_active
             self.icon_active(p, icon_path, self.width())
 
-            # DRAW TEXT
+            # 绘制文本
             p.setPen(QColor(self._set_text_active))
             p.drawText(rect_text, Qt.AlignVCenter, self.text())
 
-            # DRAW ICONS
+            # 绘制图标
             self.icon_paint(p, self._icon_path, rect_icon, self._set_icon_color)
 
-        # NORMAL BG
+        # 常规背景
         else:
             if self._is_toggle_active:
-                # BG INSIDE
+                # 绘制暗色背景
                 p.setBrush(QColor(self._dark_three))
                 p.drawRoundedRect(rect_inside, 8, 8)
 
-                # DRAW TEXT
+                # 绘制文本
                 p.setPen(QColor(self._set_text_foreground))
                 p.drawText(rect_text, Qt.AlignVCenter, self.text())
 
-                # DRAW ICONS
+                # 绘制图标
                 if self._is_toggle_active:
                     self.icon_paint(p, self._icon_path, rect_icon, self._context_color)
                 else:
                     self.icon_paint(p, self._icon_path, rect_icon, self._set_icon_color)
             else:
-                # BG INSIDE
+                # 绘制常规背景
                 p.setBrush(QColor(self._set_bg_color))
                 p.drawRoundedRect(rect_inside, 8, 8)
 
-                # DRAW TEXT
+                # 绘制文本
                 p.setPen(QColor(self._set_text_foreground))
                 p.drawText(rect_text, Qt.AlignVCenter, self.text())
 
-                # DRAW ICONS
+                # 绘制图标
                 self.icon_paint(p, self._icon_path, rect_icon, self._set_icon_color)        
 
         p.end()
 
-    # SET ACTIVE MENU
+    # 设置激活状态
     # ///////////////////////////////////////////////////////////////
     def set_active(self, is_active):
         self._is_active = is_active
@@ -202,7 +179,7 @@ class PyLeftMenuButton(QPushButton):
 
         self.repaint()
 
-    # SET ACTIVE TAB MENU
+    # 设置tab激活状态
     # ///////////////////////////////////////////////////////////////
     def set_active_tab(self, is_active):
         self._is_active_tab = is_active
@@ -212,28 +189,28 @@ class PyLeftMenuButton(QPushButton):
             
         self.repaint()
 
-    # RETURN IF IS ACTIVE MENU
+    # 返回激活状态
     # ///////////////////////////////////////////////////////////////
     def is_active(self):
         return self._is_active
 
-    # RETURN IF IS ACTIVE TAB MENU
+    # 返回tab激活状态
     # ///////////////////////////////////////////////////////////////
     def is_active_tab(self):
         return self._is_active_tab
     
-    # SET ACTIVE TOGGLE
+    # 设置活动切换
     # ///////////////////////////////////////////////////////////////
     def set_active_toggle(self, is_active):
         self._is_toggle_active = is_active
 
-    # SET ICON
+    # 设置图标
     # ///////////////////////////////////////////////////////////////
     def set_icon(self, icon_path):
         self._icon_path = icon_path
         self.repaint()
 
-    # DRAW ICON WITH COLORS
+    # 绘制一个图标并将其颜色调整为指定的颜色
     # ///////////////////////////////////////////////////////////////
     def icon_paint(self, qp, image, rect, color):
         icon = QPixmap(image)
@@ -247,7 +224,7 @@ class PyLeftMenuButton(QPushButton):
         )        
         painter.end()
 
-    # DRAW ACTIVE ICON / RIGHT SIDE
+    # 绘制经过颜色修改的图标
     # ///////////////////////////////////////////////////////////////
     def icon_active(self, qp, image, width):
         icon = QPixmap(image)
@@ -257,8 +234,7 @@ class PyLeftMenuButton(QPushButton):
         qp.drawPixmap(width - 5, 0, icon)
         painter.end()
 
-    # CHANGE STYLES
-    # Functions with custom styles
+    # 改变样式
     # ///////////////////////////////////////////////////////////////
     def change_style(self, event):
         if event == QEvent.Enter:
@@ -282,8 +258,7 @@ class PyLeftMenuButton(QPushButton):
                 self._set_bg_color = self._dark_three
             self.repaint()
     
-    # MOUSE OVER
-    # Event triggered when the mouse is over the BTN
+    # 鼠标进入
     # ///////////////////////////////////////////////////////////////
     def enterEvent(self, event):
         self.change_style(QEvent.Enter)
@@ -291,15 +266,13 @@ class PyLeftMenuButton(QPushButton):
             self.move_tooltip()
             self.tooltip.show()
 
-    # MOUSE LEAVE
-    # Event fired when the mouse leaves the BTN
+    # 鼠标离开
     # ///////////////////////////////////////////////////////////////
     def leaveEvent(self, event):
         self.change_style(QEvent.Leave)
         self.tooltip.hide()
 
-    # MOUSE PRESS
-    # Event triggered when the left button is pressed
+    # 鼠标按下
     # ///////////////////////////////////////////////////////////////
     def mousePressEvent(self, event):
         if event.button() == Qt.LeftButton:
@@ -307,35 +280,35 @@ class PyLeftMenuButton(QPushButton):
             self.tooltip.hide()
             return self.clicked.emit()
 
-    # MOUSE RELEASED
-    # Event triggered after the mouse button is released
+    # 鼠标释放
     # ///////////////////////////////////////////////////////////////
     def mouseReleaseEvent(self, event):
         if event.button() == Qt.LeftButton:
             self.change_style(QEvent.MouseButtonRelease)
             return self.released.emit()
 
-    # MOVE TOOLTIP
+    # 计算并调整工具提示的位置, 使其基于按钮的位置进行偏移
     # ///////////////////////////////////////////////////////////////
     def move_tooltip(self):
-        # GET MAIN WINDOW PARENT
+        # 获取主窗口的位置
         gp = self.mapToGlobal(QPoint(0, 0))
 
-        # SET WIDGET TO GET POSTION
-        # Return absolute position of widget inside app
+        # 设置小部件以获取位置
+        # 返回应用程序内部部件的绝对位置
         pos = self._parent.mapFromGlobal(gp)
 
-        # FORMAT POSITION
-        # Adjust tooltip position with offset
+        # 格式化位置
+        # 使用偏移调整工具提示位置
         pos_x = pos.x() + self.width() + 5
         pos_y = pos.y() + (self.width() - self.tooltip.height()) // 2
 
-        # SET POSITION TO WIDGET
-        # Move tooltip position
+        # 移动位置
         self.tooltip.move(pos_x, pos_y) 
 
+# 具有自定义样式和阴影效果的工具提示标签
+# ///////////////////////////////////////////////////////////////
 class _ToolTip(QLabel):
-    # TOOLTIP / LABEL StyleSheet
+    # 样式表
     style_tooltip = """ 
     QLabel {{		
         background-color: {_dark_one};	
@@ -359,7 +332,7 @@ class _ToolTip(QLabel):
     ):
         QLabel.__init__(self)
 
-        # LABEL SETUP
+        # 设置标签样式和属性
         style = self.style_tooltip.format(
             _dark_one = dark_one,
             _context_color = context_color,
@@ -372,7 +345,7 @@ class _ToolTip(QLabel):
         self.setText(tooltip)
         self.adjustSize()
 
-        # SET DROP SHADOW
+        # 添加阴影效果
         self.shadow = QGraphicsDropShadowEffect(self)
         self.shadow.setBlurRadius(30)
         self.shadow.setXOffset(0)
