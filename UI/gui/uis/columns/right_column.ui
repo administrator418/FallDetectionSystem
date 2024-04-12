@@ -32,7 +32,7 @@
    <item>
     <widget class="QStackedWidget" name="menus">
      <property name="currentIndex">
-      <number>1</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="menu_1">
       <layout class="QVBoxLayout" name="verticalLayout">
@@ -51,6 +51,24 @@
        <property name="bottomMargin">
         <number>5</number>
        </property>
+       <item>
+        <widget class="QLabel" name="label_1">
+         <property name="font">
+          <font>
+           <pointsize>16</pointsize>
+          </font>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">font-size: 16pt</string>
+         </property>
+         <property name="text">
+          <string>Menu 1 - Right Menu</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+        </widget>
+       </item>
       </layout>
      </widget>
      <widget class="QWidget" name="menu_2">
@@ -70,6 +88,24 @@
        <property name="bottomMargin">
         <number>5</number>
        </property>
+       <item>
+        <widget class="QLabel" name="label_2">
+         <property name="font">
+          <font>
+           <pointsize>16</pointsize>
+          </font>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">font-size: 16pt</string>
+         </property>
+         <property name="text">
+          <string>Menu 2 - Right Menu</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+        </widget>
+       </item>
       </layout>
      </widget>
     </widget>

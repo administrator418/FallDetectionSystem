@@ -48,32 +48,24 @@ class MainWindow(QMainWindow):
         # 获取被点击的按钮
         btn = SetupMainWindow.setup_btns(self)
 
-        # 如果被“btn_close_left_column”点击，则删除选择
-        if btn.objectName() != "btn_settings":
-            self.ui.left_menu.deselect_all_tab()
-
-        # 获取标题栏按钮并重置活动状态        
-        top_settings = MainFunctions.get_title_bar_btn(self, "btn_top_settings")
-        top_settings.set_active(False)
-
-        # LEFT MENU
+        # 左侧菜单栏
         # ///////////////////////////////////////////////////////////////
         
-        # HOME BTN
+        # 主页按钮
         if btn.objectName() == "btn_home":
-            # Select Menu
+            # 选择菜单
             self.ui.left_menu.select_only_one(btn.objectName())
 
-            # Load Page 1
-            MainFunctions.set_page(self, self.ui.load_pages.page_1)
+            # 导入页面
+            MainFunctions.set_page(self, self.ui.load_pages.page_welcome)
 
-        # BOTTOM INFORMATION
+        # 信息按钮
         if btn.objectName() == "btn_info":
-            # CHECK IF LEFT COLUMN IS VISIBLE
+            # C检查左列是否可见
             if not MainFunctions.left_column_is_visible(self):
                 self.ui.left_menu.select_only_one_tab(btn.objectName())
 
-                # Show / Hide
+                # 显示/隐藏
                 MainFunctions.toggle_left_column(self)
                 self.ui.left_menu.select_only_one_tab(btn.objectName())
             else:
@@ -84,61 +76,41 @@ class MainWindow(QMainWindow):
                 
                 self.ui.left_menu.select_only_one_tab(btn.objectName())
 
-            # Change Left Column Menu
+            # 更改左列菜单
             if btn.objectName() != "btn_close_left_column":
                 MainFunctions.set_left_column_menu(
                     self, 
                     menu = self.ui.left_column.menus.menu_2,
-                    title = "Info tab",
+                    title = "系统信息",
                     icon_path = Functions.set_svg_icon("icon_info.svg")
                 )
 
-        # SETTINGS LEFT
+        # 左侧设置按钮
         if btn.objectName() == "btn_settings" or btn.objectName() == "btn_close_left_column":
-            # CHECK IF LEFT COLUMN IS VISIBLE
+            # 检查左列是否可见
             if not MainFunctions.left_column_is_visible(self):
-                # Show / Hide
+                # 显示/隐藏
                 MainFunctions.toggle_left_column(self)
                 self.ui.left_menu.select_only_one_tab(btn.objectName())
             else:
                 if btn.objectName() == "btn_close_left_column":
                     self.ui.left_menu.deselect_all_tab()
-                    # Show / Hide
+                    # 显示/隐藏
                     MainFunctions.toggle_left_column(self)
                 self.ui.left_menu.select_only_one_tab(btn.objectName())
 
-            # Change Left Column Menu
+            # 修改左列菜单
             if btn.objectName() != "btn_close_left_column":
                 MainFunctions.set_left_column_menu(
                     self, 
                     menu = self.ui.left_column.menus.menu_1,
-                    title = "Settings Left Column",
+                    title = "设置",
                     icon_path = Functions.set_svg_icon("icon_settings.svg")
                 )
 
         # 标题栏菜单
         # ///////////////////////////////////////////////////////////////
         
-        # 设置标题栏
-        if btn.objectName() == "btn_top_settings":
-            # Toogle Active
-            if not MainFunctions.right_column_is_visible(self):
-                btn.set_active(True)
-
-                # 显示/隐藏
-                MainFunctions.toggle_right_column(self)
-            else:
-                btn.set_active(False)
-
-                # 显示/隐藏
-                MainFunctions.toggle_right_column(self)
-
-            # 获取左侧菜单按钮           
-            top_settings = MainFunctions.get_left_menu_btn(self, "btn_settings")
-            top_settings.set_active_tab(False)            
-
-        # 测试
-        print(f"Button {btn.objectName()}, clicked!")
 
     # 左侧菜单按钮被释放
     # 当按钮释放时运行函数

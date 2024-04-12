@@ -29,24 +29,40 @@ class SetupMainWindow:
         {
             "btn_icon" : "icon_home.svg",
             "btn_id" : "btn_home",
-            "btn_text" : "Home",
-            "btn_tooltip" : "Home page",
+            "btn_text" : "主页",
+            "btn_tooltip" : "主页",
             "show_top" : True,
             "is_active" : True
         },
         {
+            "btn_icon" : "icon_stream.svg",
+            "btn_id" : "btn_stream",
+            "btn_text" : "摄像头模式",
+            "btn_tooltip" : "摄像头模式",
+            "show_top" : True,
+            "is_active" : False
+        },
+        {
+            "btn_icon" : "icon_files.svg",
+            "btn_id" : "btn_files",
+            "btn_text" : "测试模式",
+            "btn_tooltip" : "测试模式",
+            "show_top" : True,
+            "is_active" : False
+        },
+        {
             "btn_icon" : "icon_info.svg",
             "btn_id" : "btn_info",
-            "btn_text" : "Information",
-            "btn_tooltip" : "Open informations",
+            "btn_text" : "应用信息",
+            "btn_tooltip" : "显示应用信息",
             "show_top" : False,
             "is_active" : False
         },
         {
             "btn_icon" : "icon_settings.svg",
             "btn_id" : "btn_settings",
-            "btn_text" : "Settings",
-            "btn_tooltip" : "Open settings",
+            "btn_text" : "设置",
+            "btn_tooltip" : "打开设置",
             "show_top" : False,
             "is_active" : False
         }
@@ -55,18 +71,7 @@ class SetupMainWindow:
     # 添加标题栏菜单
     # ///////////////////////////////////////////////////////////////
     add_title_bar_menus = [
-        {
-            "btn_icon" : "icon_search.svg",
-            "btn_id" : "btn_search",
-            "btn_tooltip" : "Search",
-            "is_active" : False
-        },
-        {
-            "btn_icon" : "icon_settings.svg",
-            "btn_id" : "btn_top_settings",
-            "btn_tooltip" : "Top settings",
-            "is_active" : False
-        }
+        
     ]
 
     # 设置自定义小部件的自定义按钮
@@ -136,7 +141,7 @@ class SetupMainWindow:
 
         # 设置初始页面/设置左右列菜单
         # ///////////////////////////////////////////////////////////////
-        MainFunctions.set_page(self, self.ui.load_pages.page_1)
+        MainFunctions.set_page(self, self.ui.load_pages.page_welcome)
         MainFunctions.set_left_column_menu(
             self,
             menu = self.ui.left_column.menus.menu_1,
