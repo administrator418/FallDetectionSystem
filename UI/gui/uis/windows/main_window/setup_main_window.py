@@ -73,17 +73,6 @@ class SetupMainWindow:
         
     ]
 
-    # 设置自定义小部件的自定义按钮
-    # 当按钮被点击时获取 sender() 函数
-    # ///////////////////////////////////////////////////////////////
-    def setup_btns(self):
-        if self.ui.title_bar.sender() != None:
-            return self.ui.title_bar.sender()
-        elif self.ui.left_menu.sender() != None:
-            return self.ui.left_menu.sender()
-        elif self.ui.left_column.sender() != None:
-            return self.ui.left_column.sender()
-
     # 使用自定义参数设置主窗口
     # ///////////////////////////////////////////////////////////////
     def setup_gui(self):
@@ -197,7 +186,9 @@ class SetupMainWindow:
         self.btn_stream_start.setMaximumHeight(40)
         self.ui.load_pages.btn_stream_start_layout.addWidget(self.btn_stream_start)
 
-        self.btn_stream_start.clicked.connect(MainFunctions.stream_start)
+        self.btn_stream_start.setObjectName("btn_stream_start")
+
+        self.btn_stream_start.clicked.connect(self.btn_clicked)
 
         # 结束按钮
         self.btn_stream_end = PyPushButton(
@@ -211,12 +202,28 @@ class SetupMainWindow:
         self.btn_stream_end.setMaximumHeight(40)
         self.ui.load_pages.btn_stream_end_layout.addWidget(self.btn_stream_end)
         
-        self.btn_stream_end.clicked.connect(MainFunctions.stream_end)
+        self.btn_stream_end.setObjectName("btn_stream_end")
+        
+        self.btn_stream_end.clicked.connect(self.btn_clicked)
 
         # ///////////////////////////////////////////////////////////////
         # 结束自定义小部件
         # ///////////////////////////////////////////////////////////////
 
+    # 设置自定义小部件的自定义按钮
+    # 当按钮被点击时获取 sender() 函数
+    # ///////////////////////////////////////////////////////////////
+    def setup_btns(self):
+        if self.ui.title_bar.sender() != None:
+            return self.ui.title_bar.sender()
+        elif self.ui.left_menu.sender() != None:
+            return self.ui.left_menu.sender()
+        elif self.ui.left_column.sender() != None:
+            return self.ui.left_column.sender()
+        elif self.sender() != None:
+            return self.sender()
+        
+    
     # 调整手柄大小和更改位置
     # 调整窗口大小时调整或更改位置
     # ///////////////////////////////////////////////////////////////

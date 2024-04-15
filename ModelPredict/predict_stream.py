@@ -9,22 +9,38 @@ import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from PIL import Image
-from .predict_facenet import FaceNet
+from ModelPredict.predict_facenet import FaceNet
 
 
 class PredictStream:
-    # 信息类
-    class info:
-        def __init__(self, name="name", posture="posture", box_face=[], box_fall=[], frame_while=-1, frame_last=-1, isFall=False, isSendEmail=False):
+    # 人物信息类
+    class Info:
+        def __init__(
+                self, name="name",
+                posture="posture",
+                box_face=[],
+                box_fall=[],
+                frame_while=-1,
+                frame_last=-1,
+                fall={"last_up_time": None, "last_down_time": None, "isFall": False},
+                isSendEmail=False
+            ):
             self.name = name
             self.posture = posture
             self.box_face = box_face
             self.box_fall = box_fall
             self.frame_while = frame_while
             self.frame_last = frame_last
-            self.isFall = isFall
+            self.fall = fall
             self.isSendEmail = isSendEmail
-    
+
+    # 人物人脸信息类
+    class InfoFace:
+        def __init__(self, name="name", box_face=[], box_body=[]):
+            self.name = name
+            self.box_face = box_face
+            self.box_body = box_body
+
     def __init__(self):
         # 处理器信息
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
@@ -50,13 +66,13 @@ class PredictStream:
 
         # 可视化信息
         self.annotator = None
-        self.frame = None
 
         # 时间信息
         self.time_total_start = 0
         self.time_total_end = 0
         self.time_cycle_start = 0
         self.time_cycle_end = 0
+        self.JudgeFall = 3 # 常量,判断跌倒信息帧数
 
         # 帧数信息
         self.frame_count = 0
@@ -77,15 +93,16 @@ class PredictStream:
         self.PostureJudge = 3 # 常量,姿态信息判断帧数
 
         # 人物超出监控范围,等待{self.over}帧覆盖信息
-        self.cover = self.fps * 5
+        self.cover = 20
+        self.CoverXFps = 10
 
         # 最大一维欧式距离信息
-        self.max_distance_1d = np.linalg.norm(np.array([self.capture_width, self.capture_height]))
-        
-        # 判断两个点是否是同一个人的二维欧式距离比例(二维欧式距离: 一维欧式距离的平方)
-        self.right_distance_2d_ratio = 0.4
+        self.distance_1d_max = np.linalg.norm(np.array([self.capture_width, self.capture_height]))
 
-    def send_email(self):
+        # 判断两个点是否是同一个人的二维欧式距离比例(二维欧式距离: 一维欧式距离的平方)
+        self.right_distance_2d_ratio = 0.05
+
+    def send_email(self, i):
         message = MIMEMultipart()
         message["From"] = self.from_email
         message["To"] = self.to_email
@@ -95,20 +112,21 @@ class PredictStream:
 
         # 消息内容
         message_body = (
-            "老人跌倒了！" 
+            f"{self.infos[i].name}跌倒了！" 
             + time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
             )
-       
+
         message.attach(MIMEText(message_body, "plain"))
         self.server.sendmail(self.from_email, self.to_email, message.as_string())
-    
+
     def predict(self, im0):
-        results = [self.model_fall(im0), self.model_face(im0)]
+        results = {"results_fall": self.model_fall(im0), "results_face": self.model_face(im0)}
         return results
 
     def display_fps(self, im0):
         self.time_cycle_end = time.time()
         self.fps = 1 / np.round(self.time_cycle_end - self.time_cycle_start, 2)
+        self.cover = self.fps * self.CoverXFps
         text = f'FPS: {int(self.fps)}'
         text_size = cv2.getTextSize(text, cv2.FONT_HERSHEY_SIMPLEX, 1.0, 2)[0]
         gap = 10
@@ -120,119 +138,39 @@ class PredictStream:
         if self.frame_count % self.face_imwrite_step == 0:
             self.face_imwrite_num += 1
             cv2.imwrite(f"Data/goals_pre/face_{self.frame_count}.jpg", face)
-    
-    def update_info_person(self, boxes_face, clss_face, face ,box, plot_names):
-        # 初始化facenet模型
-        facenet_model = FaceNet()
 
-        # 转化为Image格式
-        face = Image.fromarray(np.uint8(face))
-        
+    def update_info_face(self, info_faces, plot_names):
+        print("Before update_info_face:")
+        self.print_infos()
         # 判断是否为目标人脸
-        for i in os.listdir("Data/goals"):
-            goal_face = Image.open(f"Data/goals/{i}")
-            probability = facenet_model.detect_image(goal_face, face)
-            if probability < self.face_match:
-                plot_names[3] = i[:-4]
+        for face in info_faces:
+            # 与人物信息库匹配,如果匹配成功,更新信息
+            isUpdate = False
+            for j in range(len(self.infos)):
+                box_base = self.infos[j].box_face
+                if box_base == [] and self.infos[j].box_fall != []:
+                    box_base = self.infos[j].box_fall
+                if self.judge_distance_2d_byBox(face.box_body, box_base):
+                    self.infos[j].name = face.name
+                    self.infos[j].box_face = face.box_body
+                    self.infos[j].frame_while = self.frame_count
+                    isUpdate = True
+                    break
 
-                # 匹配人脸与人体,并将人体box写入信息变量
-                # 筛选1: 人脸在人体内
-                person_box_pre = []
-                for person_box, cls_new in zip(boxes_face, clss_face):
-                    if (
-                        cls_new == 0.0
-                        and box[0] > person_box[0]
-                        and box[1] > person_box[1]
-                        and box[2] < person_box[2]
-                        and box[3] < person_box[3]
-                    ):
-                        person_box_pre.append(person_box)
-                
-                # 筛选2: 人脸与所有人体中距离最近的人体
-                if len(person_box_pre) == 1:
-                    info = self.info(name=plot_names[3], box_face=box, frame_while=self.frame_count)
-                    self.infos.append(info)
-                elif len(person_box_pre) > 1:
-                    person_box_right = [[self.max_distance_1d], []]
-                    point_face = [(box[0] + box[2]) / 2, (box[1] + box[3]) / 2]
-                    for person_box in person_box_pre:
-                        point_person = [(person_box[0] + person_box[2]) / 2, (person_box[1] + person_box[3]) / 2]
-                        distance_1d = np.linalg.norm(np.array(point_face) - np.array(point_person))
-                        if distance_1d < person_box_right[0]:
-                            person_box_right[0] = distance_1d
-                            person_box_right[1] = person_box
-                    info = self.info(name=plot_names[3], box_face=person_box_right[1][0:4], frame_while=self.frame_count)
-                else:
-                    pass
+            # 如果没有匹配成功,添加信息
+            if not isUpdate:
+                self.infos.append(self.Info(name=face.name, box_face=face.box_body, frame_while=self.frame_count))
 
+        print("After update_info_face:")
+        self.print_infos()
         return plot_names
-    
-    def judge_distance_2d(self, box_cu1, box_cu2, box_base):
-        box_cu1_center = np.array([(box_cu1[0] + box_cu1[2]) / 2, (box_cu1[1] + box_cu1[3]) / 2])
-        box_cu2_center = np.array([(box_cu2[0] + box_cu2[2]) / 2, (box_cu2[1] + box_cu2[3]) / 2])
-        distance_2d_cu = np.linalg.norm(box_cu1_center - box_cu2_center) ** 2
-        distance_2d_base = np.linalg.norm(np.array(box_base[0:2]) - np.array(box_base[2:4])) ** 2
-        distance_2d_ratio = distance_2d_cu / distance_2d_base
-        if distance_2d_ratio < self.right_distance_2d_ratio:
-            return True
-        else:
-            return False
-    
-    def plot_bboxes(self, results, im0):
-        plot_boxes = []
-        plot_clss = []
-        plot_names = {0: "up", 1: "bending", 2:"down", 3: "face"}
 
-        result_face = results[1]
-        boxes_face = result_face[0].boxes.xyxy.cpu().tolist()
-        clss_face = result_face[0].boxes.cls.cpu().tolist()
-
-        # 读取目标人脸,检测人脸
-        for box, cls in zip(boxes_face, clss_face):
-            if cls == 1.0:
-                # 获得人脸信息,格式为BGR三维数组
-                face = im0[int(box[1]) : int(box[3]), int(box[0]) : int(box[2])]
-                
-                # # 保存一些人脸图片
-                # self.imwrite_face(face)
-
-                # 将人脸信息与目标人脸进行比对,并写入人物信息
-                plot_names = self.update_info_person(boxes_face, clss_face, face, box, plot_names)
-
-                # 将人脸框信息写入boxes, clss中
-                plot_boxes.append(box)
-                plot_clss.append(3)
-            
-            elif cls == 0.0 and 1.0 not in clss_face:
-                if self.infos == {}:
-                    pass
-                else:
-                    # 判断是否是同一个人,如果是,更新人物信息
-                    for i in range(len(self.infos)):
-                        isRight = self.judge_distance_2d(box, self.infos[i].box_face, self.infos[i].box_face)
-                        if isRight:
-                            self.infos[i].box_face = box
-                            self.infos[i].frame_while = self.frame_count
-                            break
-
-        self.annotator = Annotator(im0, 3, plot_names)
-
-        result_fall = results[0]
-        boxes_fall = result_fall[0].boxes.xyxy.cpu().tolist()
-        clss_fall = result_fall[0].boxes.cls.cpu().tolist()
-
-        for box, cls in zip(boxes_fall, clss_fall):
-            plot_boxes.append(box)
-            plot_clss.append(cls)
-        
-        for box, cls in zip(plot_boxes, plot_clss):
-            self.annotator.box_label(box, label=plot_names[int(cls)], color=colors(int(cls), True))
-        
-        return im0
-    
     def update_info_postures(self, results):
-        boxes = results[0].boxes.xyxy.cpu().tolist()
-        clss = results[0].boxes.cls.cpu().tolist()
+        print("Before update_info_postures:")
+        self.print_infos()
+        results_fall = results["results_fall"]
+        boxes = results_fall[0].boxes.xyxy.cpu().tolist()
+        clss = results_fall[0].boxes.cls.cpu().tolist()
 
         # 更新姿态信息
         for box, cls in zip(boxes, clss):
@@ -241,45 +179,180 @@ class PredictStream:
             # 如果有此姿态,直接更新
             isUpdata = False
             for i in range(len(self.infos)):
-                if self.infos[i].box_fall != []:
-                    isRight = self.judge_distance_2d(box, self.infos[i].box_fall, self.infos[i].box_fall)
-                else:
-                    isRight = False
+                box_base = self.infos[i].box_fall
+                if box_base == [] and self.infos[i].box_face != []:
+                    box_base = self.infos[i].box_face
+                isRight = self.judge_distance_2d_byBox(box, box_base)
                 if isRight:
-                    if self.infos[i].posture == self.postures_dir[cls]:
+                    if self.infos[i].posture == self.postures_dir[cls][1]:
                         self.infos[i].frame_last += 1
                     else:
                         if self.infos[i].frame_last > self.PostureJudge:
                             if self.infos[i].posture == "up" and cls == 2.0:
-                                self.infos[i].isFall = True
+                                self.infos[i].fall["isFall"] = True
+                            elif (
+                                self.infos[i].fall["last_up_time"]
+                                and self.infos[i].fall["last_down_time"]
+                                and self.infos[i].fall["last_up_time"] < self.infos[i].fall["last_down_time"]
+                                and self.infos[i].fall["last_down_time"] - self.infos[i].fall["last_up_time"] < self.JudgeFall
+                            ):
+                                self.infos[i].fall["isFall"] = True
                             else:
-                                self.infos[i].isFall = False
-                        self.infos[i].posture = self.postures_dir[cls]
+                                self.infos[i].fall["isFall"] = False
+                        self.infos[i].posture = self.postures_dir[cls][1]
                         self.infos[i].frame_last = 1
                     self.infos[i].box_fall = box
                     self.infos[i].frame_while = self.frame_count
                     isUpdata = True
-        
+
             # 如果没有此姿态
             if not isUpdata:
-                self.infos.append(self.info(posture=self.postures_dir[cls], box_fall=box, frame_while=self.frame_count, frame_last=1, isFall=False, isSendEmail=False))
+                self.infos.append(self.Info(posture=self.postures_dir[cls][1], box_fall=box, frame_while=self.frame_count, frame_last=1))
+
+        print("After update_info_postures:")
+        self.print_infos()
+
+    def return_distance_1d(self, box_1, box_2):
+        point_1 = np.array([(box_1[0] + box_1[2]) / 2, (box_1[1] + box_1[3]) / 2])
+        point_2 = np.array([(box_2[0] + box_2[2]) / 2, (box_2[1] + box_2[3]) / 2])
+        return np.linalg.norm(point_1 - point_2)
+
+    def judge_distance_2d_byDistance(self, distance_1d, box_base):
+        distance_2d_cu = distance_1d ** 2
+        distance_2d_base = np.linalg.norm(np.array(box_base[0:2]) - np.array(box_base[2:4])) ** 2
+        distance_2d_ratio = distance_2d_cu / distance_2d_base
+        # print(f"distance_2d_ratio: {distance_2d_ratio}")
+        if distance_2d_ratio < self.right_distance_2d_ratio:
+            return True
+        else:
+            return False
+
+    def judge_distance_2d_byBox(self, box_cu, box_base):
+        if box_cu == [] or box_base == []:
+            return False
+        box_cu_center = np.array([(box_cu[0] + box_cu[2]) / 2, (box_cu[1] + box_cu[3]) / 2])
+        box_base_center = np.array([(box_base[0] + box_base[2]) / 2, (box_base[1] + box_base[3]) / 2])
+        distance_2d_cu = np.linalg.norm(box_cu_center - box_base_center) ** 2
+        distance_2d_base = np.linalg.norm(np.array(box_base[0:2]) - np.array(box_base[2:4])) ** 2
+        distance_2d_ratio = distance_2d_cu / distance_2d_base
+        # print(f"distance_2d_ratio: {distance_2d_ratio}")
+        if distance_2d_ratio < self.right_distance_2d_ratio:
+            return True
+        else:
+            return False
+
+    def plot_bboxes(self, results, im0):
+        plot_boxes = []
+        plot_clss = []
+        plot_names = {0: "up", 1: "bending", 2:"down"}
+
+        results_face = results["results_face"]
+        boxes_face = results_face[0].boxes.xyxy.cpu().tolist()
+        clss_face = results_face[0].boxes.cls.cpu().tolist()
+
+        # 初始化facenet模型
+        facenet_model = FaceNet()
+
+        # 读取目标人脸,检测人脸
+        info_faces = []
+        info_faces_face = []
+        info_faces_body = []
+
+        face_id = 3
+        for box, cls in zip(boxes_face, clss_face):
+            if cls == 1.0:
+                # 获得人脸信息,格式为BGR三维数组
+                face = im0[int(box[1]) : int(box[3]), int(box[0]) : int(box[2])]
+                face = cv2.cvtColor(face, cv2.COLOR_BGR2RGB)
+                face = Image.fromarray(np.uint8(face))
+
+                # 与目标人脸库匹配,写入plot_names
+                isAddFaces = False
+                for i in os.listdir("Data/goals"):
+                    goal_face = Image.open(f"Data/goals/{i}")
+                    probability = facenet_model.detect_image(goal_face, face)
+                    if probability < self.face_match:
+                        plot_names[face_id] = i[:-4]
+                        isAddFaces = True
+                        break
+                if not isAddFaces:
+                    plot_names[face_id] = "face"
+
+                # 将人脸框信息写入plot_boxes, plot_clss
+                plot_boxes.append(box)
+                plot_clss.append(face_id)
+
+                # 写入info_faces
+                info_faces_face.append(self.InfoFace(name=plot_names[face_id], box_face=box))
+
+                face_id += 1
+
+                # # 保存一些人脸图片
+                # self.imwrite_face(face)
+
+            elif cls == 0.0:
+                # 写入info_faces
+                info_faces_body.append(self.InfoFace(box_body=box))
+
+        # 匹配人脸与人物信息
+        for if_face in info_faces_face:
+            for if_body in info_faces_body:
+                distance_1d = self.return_distance_1d(if_face.box_face, if_body.box_body)
+                if self.judge_distance_2d_byDistance(distance_1d, if_body.box_body):
+                    info_faces.append(self.InfoFace(name=if_face.name, box_face=if_face.box_face, box_body=if_body.box_body))
+                    break
+
+        # 更新人物信息
+        plot_names = self.update_info_face(info_faces, plot_names)
+
+        self.annotator = Annotator(im0, 3, plot_names)
+
+        results_fall = results["results_fall"]
+        boxes_fall = results_fall[0].boxes.xyxy.cpu().tolist()
+        clss_fall = results_fall[0].boxes.cls.cpu().tolist()
+
+        for box, cls in zip(boxes_fall, clss_fall):
+            plot_boxes.append(box)
+            plot_clss.append(cls)
+
+        for box, cls in zip(plot_boxes, plot_clss):
+            self.annotator.box_label(box, label=plot_names[int(cls)], color=colors(int(cls), True))
+
+        return im0
 
     def fall_detect(self, results):
         # 更新姿态信息
-        self.update_info_postures(results[1])
-        
+        self.update_info_postures(results)
+
         # 判断是否有人跌倒
         for i in range(len(self.infos)):
-            if not self.infos[i].isSendEmail and self.infos[i].isFall and self.infos[i].frame_last > self.posture_judge:
+            if not self.infos[i].isSendEmail and self.infos[i].fall["isFall"]:
                 self.infos[i].isSendEmail = True
-                self.send_email()
+                self.send_email(i)
 
     def clean(self):
         for info in self.infos:
             if self.frame_count - info.frame_while > self.cover:
                 self.infos.remove(info)
 
-    def updata_frame(self):
+    def print_infos(self):
+        if self.infos == []:
+            print("No person!")
+        else:
+            print(f"len(infos): {len(self.infos)}")
+            for info in self.infos:
+                print(
+                    f"name: {info.name}, "
+                    f"posture: {info.posture}, "
+                    f"box_face: {info.box_face}, "
+                    f"box_fall: {info.box_fall}, "
+                    f"frame_while: {info.frame_while}, "
+                    f"frame_last: {info.frame_last}, "
+                    f"fall: {info.fall}, "
+                    f"isSendEmail: {info.isSendEmail}"
+                )
+
+    def return_frame(self):
         # 从摄像头获取视频流
         self.cap = cv2.VideoCapture(self.capture_index)
         assert self.cap.isOpened()
@@ -313,19 +386,17 @@ class PredictStream:
         # 显示FPS
         self.display_fps(im0)
 
-        # 更新视频帧
-        self.frame = im0
-        
+        # 转化为RGB格式
+        im0 = cv2.cvtColor(im0, cv2.COLOR_BGR2RGB)
+
+        # 返回视频帧
+        return im0
+
     def __enter__(self):
         return self
-    
+
     def __exit__(self, exc_type, exc_val, exc_tb):   
         # 释放摄像头,关闭邮件服务器
         self.cap.release()
         self.server.quit()
         print("Exit!")
-
-with PredictStream() as detector:
-    for i in range(5):
-        detector.updata_frame()
-        print(type(detector.frame))

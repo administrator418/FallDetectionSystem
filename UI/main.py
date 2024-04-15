@@ -8,12 +8,15 @@ from PySide6.QtSvgWidgets import *
 from UI.gui.core.json_settings import Settings
 from UI.gui.uis.windows.main_window import *
 from UI.gui.widgets import *
+from ModelPredict.predict_stream import PredictStream
 
 # 调整 dpi
 # ///////////////////////////////////////////////////////////////
 # dpi = QApplication(sys.argv).primaryScreen().logicalDotsPerInch()
 # print(f"DPI: {dpi}, 修改下面为DPI的int型")
 os.environ["QT_FONT_DPI"] = "72"
+
+
 
 # 主界面
 # ///////////////////////////////////////////////////////////////
@@ -37,9 +40,41 @@ class MainWindow(QMainWindow):
         self.hide_grips = True # 是否隐藏调整手柄
         SetupMainWindow.setup_gui(self)
 
+        # 设置摄像头模式帧处理线程
+        # ///////////////////////////////////////////////////////////////
+        self.stream_thread = MainWindow.StreamThread(self)
+        self.stream_thread.new_frame.connect(self.update_image_display)
+
         # 显示主界面
         # ///////////////////////////////////////////////////////////////
         self.show()
+
+    # 摄像头模式帧处理线程
+    class StreamThread(QThread):
+        new_frame = Signal(QImage)
+
+        def __init__(self, parent=None):
+            super(MainWindow.StreamThread, self).__init__(parent)
+            self.active = False
+
+        def run(self):
+            with PredictStream() as predict_stream:
+                while self.active:
+                    im0 = predict_stream.return_frame()
+                    if im0 is None:
+                        self.quit()  # 优雅地结束线程
+                        break
+                    height, width, channels = im0.shape
+                    bytes_per_line = channels * width
+                    q_img = QImage(im0.data, width, height, bytes_per_line, QImage.Format_RGB888)
+                    self.new_frame.emit(q_img)
+
+    # 更新图像显示
+    # ///////////////////////////////////////////////////////////////
+    def update_image_display(self, q_img):
+        pixmap = QPixmap.fromImage(q_img)
+        self.ui.load_pages.label_stream.setPixmap(pixmap)
+        self.ui.load_pages.label_stream.setAlignment(Qt.AlignCenter)
 
     # 当按钮被点击时运行函数
     # 通过对象名称/按钮ID检查功能
@@ -87,7 +122,7 @@ class MainWindow(QMainWindow):
             else:
                 if btn.objectName() == "btn_close_left_column":
                     self.ui.left_menu.deselect_all_tab()
-                    # Show / Hide
+                    # 显示 / 隐藏
                     MainFunctions.toggle_left_column(self)
                 
                 self.ui.left_menu.select_only_one_tab(btn.objectName())
@@ -127,8 +162,18 @@ class MainWindow(QMainWindow):
         # 标题栏菜单
         # ///////////////////////////////////////////////////////////////
         
+        # 摄像头模式页按钮
+        if btn.objectName() == "btn_stream_start":
+            self.stream_thread.active = True
+            self.stream_thread.start()
+        
+        if btn.objectName() == "btn_stream_end":
+            self.stream_thread.active = False
+            self.stream_thread.wait()
+            self.ui.load_pages.label_stream.clear()
+
         # 测试
-        print(f"Button {btn.objectName()}, clicked!")
+        # print(f"Button {btn.objectName()}, clicked!")
 
     # 左侧菜单按钮被释放
     # 当按钮释放时运行函数

@@ -7,11 +7,11 @@
     "custom_title_bar": true,
     "startup_size": [
         960,
-        540
+        640
     ],
     "minimum_size": [
         960,
-        540
+        640
     ],
     "lef_menu_size" : {
         "minimum" : 50,
