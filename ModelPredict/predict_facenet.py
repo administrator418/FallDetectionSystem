@@ -104,13 +104,13 @@ class FaceNet(object):
 def predict_facenet():
     model = FaceNet()
     
-    goal_data = "./ModelPredict/TestData/images/goal.jpg"
-    test_data = "/ModelPredict/TestData/temp_face_images"
+    goal_data = "Data/goals/goal.jpg"
+    test_data = "Data/images"
 
     probability_max = -1
     probability_max_image = -1
 
-    for i in os.listdir("." + test_data):
+    for i in os.listdir(test_data):
         image_1 = os.getcwd() + test_data + "/" + i
         try:
             image_1 = Image.open(image_1)

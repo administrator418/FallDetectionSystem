@@ -1,36 +1,41 @@
 import cv2
 from ultralytics import YOLO
 
-# Load the YOLOv8 model
-model = YOLO("./ModelPredict/yolov8n_fall2.pt")
+class PredictVideo:
+    def __init__(self, modelpath, filepath):
+        self.modelpath = modelpath
+        self.filepath = filepath
+    
+    def predict_video(self):
+        # 导入模型
+        model = YOLO(self.modelpath)
 
-# Open the video file
-video_path = "./ModelPredict/TestData/videos/WalkS1.avi"
-cap = cv2.VideoCapture(video_path)
+        # 打开视频文件
+        cap = cv2.VideoCapture(self.filepath)
 
-# Loop through the video frames
-while cap.isOpened():
-    # Read a frame from the video
-    success, frame = cap.read()
+        # 循环遍历视频帧
+        while cap.isOpened():
+            # 从视频中读取一帧
+            success, frame = cap.read()
 
-    if success:
-        # Run YOLOv8 inference on the frame
-        results = model(frame)
+            # 如果成功读取帧
+            if success:
+                # 在帧上运行 YOLOv8 推理
+                results = model(frame)
 
-        # Visualize the results on the frame
-        annotated_frame = results[0].plot()
-        clss = results[0].boxes.cls.cpu().tolist()
+                # 在帧上可视化结果
+                annotated_frame = results[0].plot()
+                clss = results[0].boxes.cls.cpu().tolist()
 
-        # Display the annotated frame
-        cv2.imshow("Fall Detection", annotated_frame)
+                # 显示帧
+                cv2.imshow("Fall Detection", annotated_frame)
 
-        # Break the loop if 'q' is pressed
-        if cv2.waitKey(1) & 0xFF == ord("q"):
-            break
-    else:
-        # Break the loop if the end of the video is reached
-        break
-
-# Release the video capture object and close the display window
-cap.release()
-cv2.destroyAllWindows()
+                # 如果按 'q' 键则退出循环
+                if cv2.waitKey(1) & 0xFF == ord("q"):
+                    break
+            else:
+                break
+        
+        # 释放视频捕获对象并关闭显示窗口
+        cap.release()
+        cv2.destroyAllWindows()

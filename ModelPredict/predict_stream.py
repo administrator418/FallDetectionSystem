@@ -9,8 +9,7 @@ import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from PIL import Image
-from predict_facenet import FaceNet
-from path import cu_path
+from .predict_facenet import FaceNet
 
 
 class PredictStream:
@@ -25,15 +24,13 @@ class PredictStream:
             self.frame_last = frame_last
             self.isFall = isFall
             self.isSendEmail = isSendEmail
-
-            self.posture_dir = ((0, "up"), (1, "bending"), (2, "down"))
-            self.PostureJudge = 3 # 常量,姿态信息判断帧数
     
     def __init__(self):
         # 处理器信息
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
 
         # 摄像头信息
+        self.cap = None
         self.capture_index = 0
         self.capture_width = 640
         self.capture_height = 480
@@ -48,11 +45,12 @@ class PredictStream:
         self.server.login(self.from_email, self.password)
 
         # 模型信息
-        self.model_fall = YOLO(f"{cu_path}/PredictData/models/yolov8n_fall.pt")
-        self.model_face = YOLO(f"{cu_path}/PredictData/models/yolov8n_face.pt")
+        self.model_fall = YOLO("ModelPredict/yolov8n_fall.pt")
+        self.model_face = YOLO("ModelPredict/yolov8n_face.pt")
 
         # 可视化信息
         self.annotator = None
+        self.frame = None
 
         # 时间信息
         self.time_total_start = 0
@@ -73,6 +71,11 @@ class PredictStream:
 
         # 人物信息,格式为[info1, info2, ...],其中info1为info类
         self.infos = []
+
+        # 人物信息,姿态
+        self.postures_dir = ((0, "up"), (1, "bending"), (2, "down"))
+        self.PostureJudge = 3 # 常量,姿态信息判断帧数
+
         # 人物超出监控范围,等待{self.over}帧覆盖信息
         self.cover = self.fps * 5
 
@@ -113,10 +116,10 @@ class PredictStream:
         cv2.putText(im0, text, (20, 70), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0, 0, 0), 2)
 
     def imwrite_face(self, face):
-        os.makedirs(f"{cu_path}/goals_pre", exist_ok=True)
+        os.makedirs("Data/goals_pre", exist_ok=True)
         if self.frame_count % self.face_imwrite_step == 0:
             self.face_imwrite_num += 1
-            cv2.imwrite(f"{cu_path}/goals_pre/face_{self.frame_count}.jpg", face)
+            cv2.imwrite(f"Data/goals_pre/face_{self.frame_count}.jpg", face)
     
     def update_info_person(self, boxes_face, clss_face, face ,box, plot_names):
         # 初始化facenet模型
@@ -126,8 +129,8 @@ class PredictStream:
         face = Image.fromarray(np.uint8(face))
         
         # 判断是否为目标人脸
-        for i in os.listdir(f"{cu_path}/PredictData/goals"):
-            goal_face = Image.open(f"{cu_path}/PredictData/goals/{i}")
+        for i in os.listdir("Data/goals"):
+            goal_face = Image.open(f"Data/goals/{i}")
             probability = facenet_model.detect_image(goal_face, face)
             if probability < self.face_match:
                 plot_names[3] = i[:-4]
@@ -228,20 +231,25 @@ class PredictStream:
         return im0
     
     def update_info_postures(self, results):
-        boxes = results.boxes.xyxy.cpu().tolist()
-        clss = results.boxes.cls.cpu().tolist()
+        boxes = results[0].boxes.xyxy.cpu().tolist()
+        clss = results[0].boxes.cls.cpu().tolist()
 
         # 更新姿态信息
         for box, cls in zip(boxes, clss):
+            cls = int(cls)
+
             # 如果有此姿态,直接更新
             isUpdata = False
             for i in range(len(self.infos)):
-                isRight = self.judge_distance_2d(box, self.infos[i].box_fall, self.infos[i].box_fall)
+                if self.infos[i].box_fall != []:
+                    isRight = self.judge_distance_2d(box, self.infos[i].box_fall, self.infos[i].box_fall)
+                else:
+                    isRight = False
                 if isRight:
                     if self.infos[i].posture == self.postures_dir[cls]:
                         self.infos[i].frame_last += 1
                     else:
-                        if self.infos[i].frame_last > self.posture_judge:
+                        if self.infos[i].frame_last > self.PostureJudge:
                             if self.infos[i].posture == "up" and cls == 2.0:
                                 self.infos[i].isFall = True
                             else:
@@ -254,14 +262,14 @@ class PredictStream:
         
             # 如果没有此姿态
             if not isUpdata:
-                self.postures.append([box, self.postures_dir[cls], self.frame_count, 1, False, False])
+                self.infos.append(self.info(posture=self.postures_dir[cls], box_fall=box, frame_while=self.frame_count, frame_last=1, isFall=False, isSendEmail=False))
 
     def fall_detect(self, results):
         # 更新姿态信息
         self.update_info_postures(results[1])
         
         # 判断是否有人跌倒
-        for i in range(len(self.postures)):
+        for i in range(len(self.infos)):
             if not self.infos[i].isSendEmail and self.infos[i].isFall and self.infos[i].frame_last > self.posture_judge:
                 self.infos[i].isSendEmail = True
                 self.send_email()
@@ -271,52 +279,53 @@ class PredictStream:
             if self.frame_count - info.frame_while > self.cover:
                 self.infos.remove(info)
 
-    def __call__(self):
+    def updata_frame(self):
         # 从摄像头获取视频流
-        cap = cv2.VideoCapture(self.capture_index)
-        assert cap.isOpened()
+        self.cap = cv2.VideoCapture(self.capture_index)
+        assert self.cap.isOpened()
 
         # 设置摄像头参数
-        cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
-        cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
+        self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
+        self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
 
-        while True:
-            # 记录系统运行开始时间
-            self.time_cycle_start = time.time()
+        # 记录系统运行开始时间
+        self.time_cycle_start = time.time()
 
-            # 读取视频帧,返回ret(布尔值,表示帧是否被成功读取)和im0(BGR三维数组,视频帧本身)
-            ret, im0 = cap.read()
-            assert ret
+        # 读取视频帧,返回ret(布尔值,表示帧是否被成功读取)和im0(BGR三维数组,视频帧本身)
+        ret, im0 = self.cap.read()
+        assert ret
 
-            # 记录帧数
-            self.frame_count += 1
+        # 记录帧数
+        self.frame_count += 1
 
-            # 预测
-            results = self.predict(im0)
+        # 预测
+        results = self.predict(im0)
 
-            # 画框
-            im0 = self.plot_bboxes(results, im0)
+        # 画框
+        im0 = self.plot_bboxes(results, im0)
 
-            # 判断是否有人跌倒,并发送报警信息
-            self.fall_detect(results)
+        # 判断是否有人跌倒,并发送报警信息
+        self.fall_detect(results)
 
-            # 清理过期信息
-            self.clean()
+        # 清理过期信息
+        self.clean()
 
-            # 显示FPS
-            self.display_fps(im0)
+        # 显示FPS
+        self.display_fps(im0)
 
-            # 显示视频帧
-            cv2.imshow("Fall Detection System", im0)
-
-            # 读取键盘输入,如果输入为q,则退出
-            if cv2.waitKey(5) & 0xFF == ord("q"):
-                break
+        # 更新视频帧
+        self.frame = im0
         
-        # 释放摄像头,关闭窗口,关闭邮件服务器
-        cap.release()
-        cv2.destroyAllWindows()
+    def __enter__(self):
+        return self
+    
+    def __exit__(self, exc_type, exc_val, exc_tb):   
+        # 释放摄像头,关闭邮件服务器
+        self.cap.release()
         self.server.quit()
+        print("Exit!")
 
-detector = PredictStream()
-detector()
+with PredictStream() as detector:
+    for i in range(5):
+        detector.updata_frame()
+        print(type(detector.frame))

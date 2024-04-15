@@ -4,7 +4,7 @@ from PySide6.QtWidgets import *
 from PySide6.QtSvgWidgets import *
 from .py_left_menu_button import PyLeftMenuButton
 from .py_div import PyDiv
-from gui.core.functions import *
+from UI.gui.core.functions import *
 
 # 左侧菜单
 # ///////////////////////////////////////////////////////////////

@@ -1,18 +1,17 @@
-from gui.widgets.py_table_widget.py_table_widget import PyTableWidget
-from .functions_main_window import *
 import sys
 import os
 from PySide6.QtCore import *
 from PySide6.QtGui import *
 from PySide6.QtWidgets import *
 from PySide6.QtSvgWidgets import *
-from gui.core.json_settings import Settings
-from gui.core.json_themes import Themes
-from gui.widgets import *
-from .ui_main import *
-from .functions_main_window import *
+from UI.gui.core.json_settings import Settings
+from UI.gui.core.json_themes import Themes
+from UI.gui.widgets import *
+from UI.gui.uis.windows.main_window.ui_main import *
+from UI.gui.uis.windows.main_window.functions_main_window import *
 
-# 
+
+# 设置主窗口
 # ///////////////////////////////////////////////////////////////
 class SetupMainWindow:
     def __init__(self):
@@ -29,40 +28,40 @@ class SetupMainWindow:
         {
             "btn_icon" : "icon_home.svg",
             "btn_id" : "btn_home",
-            "btn_text" : "主页",
-            "btn_tooltip" : "主页",
+            "btn_text" : "Home",
+            "btn_tooltip" : "Home page",
             "show_top" : True,
             "is_active" : True
         },
         {
             "btn_icon" : "icon_stream.svg",
             "btn_id" : "btn_stream",
-            "btn_text" : "摄像头模式",
-            "btn_tooltip" : "摄像头模式",
+            "btn_text" : "Stream Mode",
+            "btn_tooltip" : "Stream Mode",
             "show_top" : True,
             "is_active" : False
         },
         {
             "btn_icon" : "icon_files.svg",
             "btn_id" : "btn_files",
-            "btn_text" : "测试模式",
-            "btn_tooltip" : "测试模式",
+            "btn_text" : "Test Mode",
+            "btn_tooltip" : "Test Mode",
             "show_top" : True,
             "is_active" : False
         },
         {
             "btn_icon" : "icon_info.svg",
             "btn_id" : "btn_info",
-            "btn_text" : "应用信息",
-            "btn_tooltip" : "显示应用信息",
+            "btn_text" : "Information",
+            "btn_tooltip" : "Open informations",
             "show_top" : False,
             "is_active" : False
         },
         {
             "btn_icon" : "icon_settings.svg",
             "btn_id" : "btn_settings",
-            "btn_text" : "设置",
-            "btn_tooltip" : "打开设置",
+            "btn_text" : "Settings",
+            "btn_tooltip" : "Open settings",
             "show_top" : False,
             "is_active" : False
         }
@@ -92,7 +91,7 @@ class SetupMainWindow:
         # ///////////////////////////////////////////////////////////////
         self.setWindowTitle(self.settings["app_name"])
         
-        # 移除标题栏
+        # 设置标题栏
         # ///////////////////////////////////////////////////////////////
         if self.settings["custom_title_bar"]:
             self.setWindowFlag(Qt.FramelessWindowHint)
@@ -132,7 +131,7 @@ class SetupMainWindow:
         if self.settings["custom_title_bar"]:
             self.ui.title_bar.set_title(self.settings["app_name"])
         else:
-            self.ui.title_bar.set_title("欢迎使用跌倒检测系统")
+            self.ui.title_bar.set_title("Welcome to Fall Detection System")
 
         # 设置左列信号
         # ///////////////////////////////////////////////////////////////
@@ -144,7 +143,7 @@ class SetupMainWindow:
         MainFunctions.set_page(self, self.ui.load_pages.page_welcome)
         MainFunctions.set_left_column_menu(
             self,
-            menu = self.ui.left_column.menus.menu_1,
+            menu = self.ui.left_column.menus.menu_settings,
             title = "Settings Left Column",
             icon_path = Functions.set_svg_icon("icon_settings.svg")
         )
@@ -185,7 +184,35 @@ class SetupMainWindow:
         self.logo_svg = QSvgWidget(Functions.set_svg_image("logo_home.svg"))
         self.ui.load_pages.logo_layout.addWidget(self.logo_svg, Qt.AlignCenter, Qt.AlignCenter)
 
+        # 摄像头模式页
+        # 开始按钮
+        self.btn_stream_start = PyPushButton(
+            text="Start",
+            radius=8,
+            color=self.themes["app_color"]["text_foreground"],
+            bg_color=self.themes["app_color"]["dark_one"],
+            bg_color_hover=self.themes["app_color"]["dark_three"],
+            bg_color_pressed=self.themes["app_color"]["dark_four"]
+        )
+        self.btn_stream_start.setMaximumHeight(40)
+        self.ui.load_pages.btn_stream_start_layout.addWidget(self.btn_stream_start)
+
+        self.btn_stream_start.clicked.connect(MainFunctions.stream_start)
+
+        # 结束按钮
+        self.btn_stream_end = PyPushButton(
+            text="End",
+            radius=8,
+            color=self.themes["app_color"]["text_foreground"],
+            bg_color=self.themes["app_color"]["dark_one"],
+            bg_color_hover=self.themes["app_color"]["dark_three"],
+            bg_color_pressed=self.themes["app_color"]["dark_four"]
+        )
+        self.btn_stream_end.setMaximumHeight(40)
+        self.ui.load_pages.btn_stream_end_layout.addWidget(self.btn_stream_end)
         
+        self.btn_stream_end.clicked.connect(MainFunctions.stream_end)
+
         # ///////////////////////////////////////////////////////////////
         # 结束自定义小部件
         # ///////////////////////////////////////////////////////////////

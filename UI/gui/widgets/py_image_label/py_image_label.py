@@ -1,0 +1,2 @@
+class PyImageLabel:
+    pass

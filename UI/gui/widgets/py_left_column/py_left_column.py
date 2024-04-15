@@ -4,7 +4,7 @@ from PySide6.QtWidgets import *
 from PySide6.QtSvgWidgets import *
 from .py_left_button import *
 from .py_icon import *
-from gui.uis.columns.left_column_ui import Ui_LeftColumn
+from UI.gui.uis.columns.left_column_ui import Ui_LeftColumn
 
 class PyLeftColumn(QWidget):
     # 信号

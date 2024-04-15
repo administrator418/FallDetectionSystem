@@ -1,15 +1,15 @@
-from gui.core.functions import Functions
+from UI.gui.core.functions import Functions
 from PySide6.QtCore import *
 from PySide6.QtGui import *
 from PySide6.QtWidgets import *
 from PySide6.QtSvgWidgets import *
-from gui.core.json_settings import Settings
-from gui.core.json_themes import Themes
-from gui.widgets import *
-from .setup_main_window import *
-from gui.uis.pages.main_pages_ui import Ui_MainPages
-from gui.uis.columns.right_column_ui import Ui_RightColumn
-from gui.widgets.py_credits_bar.py_credits import PyCredits
+from UI.gui.core.json_settings import Settings
+from UI.gui.core.json_themes import Themes
+from UI.gui.widgets import *
+from UI.gui.uis.windows.main_window.setup_main_window import *
+from UI.gui.uis.pages.main_pages_ui import Ui_MainPages
+from UI.gui.uis.columns.right_column_ui import Ui_RightColumn
+from UI.gui.widgets.py_credits_bar.py_credits import PyCredits
 
 # 主窗口
 # ///////////////////////////////////////////////////////////////

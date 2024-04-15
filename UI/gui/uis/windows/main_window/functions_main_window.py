@@ -3,7 +3,9 @@ from PySide6.QtCore import *
 from PySide6.QtGui import *
 from PySide6.QtWidgets import *
 from PySide6.QtSvgWidgets import *
-from .ui_main import *
+from UI.gui.uis.windows.main_window.ui_main import *
+from ModelPredict.predict_stream import PredictStream
+
 
 # 主功能
 class MainFunctions():
@@ -122,3 +124,24 @@ class MainFunctions():
         self.group.addAnimation(self.left_box)
         self.group.addAnimation(self.right_box)
         self.group.start()
+    
+    # 摄像头模式开始按钮
+    def stream_start(self):
+        with PredictStream() as predict_stream:
+            while True:
+                im0 = predict_stream.updata_frame()
+
+                # 将 numpy.array 转换为 QImage
+                height, width, channels = im0.shape
+                bytes_per_line = 3 * width
+                q_img = QImage(im0.data, width, height, bytes_per_line, QImage.Format_RGB888)
+
+                # 将 QImage 转换为 QPixmap
+                pixmap = QPixmap.fromImage(q_img)
+
+                # 假设你有一个 QLabel 名为 self.label_image 用于显示图像
+                self.ui.load_pages.label_stream.setPixmap(pixmap)
+
+    # 摄像头模式结束按钮
+    def stream_end(self):
+        print("Stream End")
