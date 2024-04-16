@@ -1,9 +1,9 @@
 from PIL import Image
 
-from .nets.facenet import Facenet
+from .nets.facenet import facenet
 
 if __name__ == "__main__":
-    model = Facenet()
+    model = facenet()
 
     while True:
         image_1 = input("Input image_1 filename:")

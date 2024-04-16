@@ -8,13 +8,13 @@ import torch.distributed as dist
 import torch.optim as optim
 from torch.utils.data import DataLoader
 
-from nets.facenet import FaceNet
+from nets.facenet import facenet
 from utils.callback import LossHistory
 from utils.dataloader import FaceNetDataset, LFWDataset, dataset_collate
 from utils.utils import get_num_classes, seed_everything, show_config, worker_init_fn
 from utils.utils_fit import fit_one_epoch
 
-from path import cu_path, casia_path, lfw_path
+from path import casia_path, lfw_path
 
 
 def triplet_loss(alpha=0.2):
@@ -167,7 +167,7 @@ if __name__ == "__main__":
     # --------------------------------------------------------#
     #   指向根目录下的cls_train.txt，读取人脸路径与标签
     # --------------------------------------------------------#
-    annotation_path = f"{cu_path}/FaceIdentify/cls_train.txt"
+    annotation_path = "FaceIdentify/cls_train.txt"
     # --------------------------------------------------------#
     #   输入图像大小，常用设置如[112, 112, 3]
     # --------------------------------------------------------#
@@ -185,7 +185,7 @@ if __name__ == "__main__":
     #   如果想要让模型从主干的预训练权值开始训练，则设置model_path = ''，pretrain = True，此时仅加载主干。
     #   如果想要让模型从0开始训练，则设置model_path = ''，pretrain = Fasle，此时从0开始训练。
     # ----------------------------------------------------------------------------------------------------------------------------#
-    model_path = f"{cu_path}/FaceIdentify/facenet_mobilenet.pth"
+    model_path = "FaceIdentify/facenet_mobilenet.pth"
     # ----------------------------------------------------------------------------------------------------------------------------#
     #   是否使用主干网络的预训练权重，此处使用的是主干的权重，因此是在模型构建的时候进行加载的。
     #   如果设置了model_path，则主干的权值无需加载，pretrained的值无意义。
@@ -253,7 +253,7 @@ if __name__ == "__main__":
     # ------------------------------------------------------------------#
     #   save_dir        权值与日志文件保存的文件夹
     # ------------------------------------------------------------------#
-    save_dir = f"{cu_path}/FaceIdentify/logs"
+    save_dir = "FaceIdentify/logs"
     # ------------------------------------------------------------------#
     #   用于设置是否使用多线程读取数据
     #   开启后会加快数据读取速度，但是会占用更多内存
@@ -268,7 +268,7 @@ if __name__ == "__main__":
     #   LFW评估数据集的文件路径和对应的txt文件
     # ------------------------------------------------------------------#
     lfw_dir_path = lfw_path
-    lfw_pairs_path = f"{cu_path}/FaceIdentify/lfw_pair.txt"
+    lfw_pairs_path = "FaceIdentify/lfw_pair.txt"
 
     seed_everything(seed)
     # ------------------------------------------------------#
@@ -294,7 +294,7 @@ if __name__ == "__main__":
     # ---------------------------------#
     #   载入模型并加载预训练权重
     # ---------------------------------#
-    model = FaceNet(num_classes=num_classes, pretrained=pretrained)
+    model = facenet(num_classes=num_classes, pretrained=pretrained)
 
     if model_path != "":
         # ------------------------------------------------------#
