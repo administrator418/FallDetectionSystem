@@ -9,7 +9,7 @@ import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from PIL import Image
-from ModelPredict.predict_facenet import FaceNet
+from FaceIdentify.nets.facenet import facenet
 
 
 class PredictStream:
@@ -251,7 +251,7 @@ class PredictStream:
         clss_face = results_face[0].boxes.cls.cpu().tolist()
 
         # 初始化facenet模型
-        facenet_model = FaceNet()
+        facenet_model = facenet()
 
         # 读取目标人脸,检测人脸
         info_faces = []
