@@ -16,7 +16,7 @@ url = "http://106.ihuyi.com/webservice/sms.php?method=Submit"
 values = {
     "account": "C67266089",
     "password": "fab6091b9dd4cae53d603d3a9ae3883e",
-    "mobile": "15892032103",
+    "mobile": "13675000418",
     "content": "您的验证码是：7835。请不要把验证码泄露给其他人。",
     "format": "json",
 }
