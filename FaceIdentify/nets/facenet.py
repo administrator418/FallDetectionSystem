@@ -93,6 +93,10 @@ class facenet(object):
         #   没有GPU可以设置成False
         #-------------------------------------------#
         "cuda"              : True,
+        #-------------------------------------------#
+        #   判断是否是同一个人的阈值
+        #-------------------------------------------#
+        "isSamePerson"      : 0.5,
     }
 
     @classmethod
@@ -103,7 +107,7 @@ class facenet(object):
             return "Unrecognized attribute name '" + n + "'"
 
     #---------------------------------------------------#
-    #   初始化Facenet
+    #   初始化facenet
     #---------------------------------------------------#
     def __init__(self, **kwargs):
         self.__dict__.update(self._defaults)
@@ -158,11 +162,7 @@ class facenet(object):
             #---------------------------------------------------#
             l1 = np.linalg.norm(output1 - output2, axis=1)
         
-        plt.subplot(1, 2, 1)
-        plt.imshow(np.array(image_1))
-
-        plt.subplot(1, 2, 2)
-        plt.imshow(np.array(image_2))
-        plt.text(-12, -12, 'Distance:%.3f' % l1, ha='center', va= 'bottom',fontsize=11)
-        plt.show()
-        return l1
+        if l1 > self.isSamePerson:
+            return False
+        else:
+            return True

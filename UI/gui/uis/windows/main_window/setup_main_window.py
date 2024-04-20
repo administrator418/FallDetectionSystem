@@ -320,8 +320,7 @@ class SetupMainWindow:
             selection_color = self.themes["app_color"]["white"],
             bg_color = self.themes["app_color"]["dark_one"],
             bg_color_active = self.themes["app_color"]["dark_three"],
-            context_color = self.themes["app_color"]["context_color"],
-            readonly=True
+            context_color = self.themes["app_color"]["context_color"]
         )
         self.line_edit_path.setMinimumHeight(30)
         self.ui.load_pages.path_line_edit_layout.addWidget(self.line_edit_path)
@@ -338,7 +337,7 @@ class SetupMainWindow:
         self.btn_path_select.setMaximumHeight(30)
         self.ui.load_pages.btn_path_layout.addWidget(self.btn_path_select)
         
-        # 开始测试安妮家
+        # 开始测试按钮
         self.btn_files_start = PyPushButton(
             text="Start",
             radius=8,
