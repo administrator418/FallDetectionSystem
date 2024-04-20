@@ -9,7 +9,7 @@ import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from PIL import Image
-from FaceIdentify.nets.facenet import facenet
+from FaceIdentify.nets.facenet import FaceNet
 
 
 class PredictStream:
@@ -18,21 +18,25 @@ class PredictStream:
         def __init__(
                 self, name="name",
                 posture="posture",
-                box_face=[],
-                box_fall=[],
-                frame_while=-1,
-                frame_last=-1,
-                fall={"last_up_time": None, "last_down_time": None, "isFall": False},
-                isSendEmail=False
+                box_faceDetection=[],
+                box_postureDetection=[],
+                frame_while=None,
+                frame_last=None,
+                fall={
+                    "last_up_frame": None,
+                    "last_down_frame": None,
+                    "isFall": False
+                },
+                isAlarm=False
             ):
             self.name = name
             self.posture = posture
-            self.box_face = box_face
-            self.box_fall = box_fall
+            self.box_faceDetection = box_faceDetection
+            self.box_postureDetection = box_postureDetection
             self.frame_while = frame_while
             self.frame_last = frame_last
             self.fall = fall
-            self.isSendEmail = isSendEmail
+            self.isAlarm = isAlarm
 
     # 人物人脸信息类
     class InfoFace:
@@ -79,7 +83,7 @@ class PredictStream:
         self.fps = -1
 
         # 人脸匹配值
-        self.face_match = 1.2
+        self.RightProbability = 1.2
 
         # 人脸信息保存
         self.face_imwrite_step = 2
@@ -159,7 +163,7 @@ class PredictStream:
 
             # 如果没有匹配成功,添加信息
             if not isUpdate:
-                self.infos.append(self.Info(name=face.name, box_face=face.box_body, frame_while=self.frame_count))
+                self.infos.append(self.Info(name=face.name, box_faceDetection=face.box_body, frame_while=self.frame_count))
 
         print("After update_info_face:")
         self.print_infos()
@@ -191,10 +195,10 @@ class PredictStream:
                             if self.infos[i].posture == "up" and cls == 2.0:
                                 self.infos[i].fall["isFall"] = True
                             elif (
-                                self.infos[i].fall["last_up_time"]
-                                and self.infos[i].fall["last_down_time"]
-                                and self.infos[i].fall["last_up_time"] < self.infos[i].fall["last_down_time"]
-                                and self.infos[i].fall["last_down_time"] - self.infos[i].fall["last_up_time"] < self.JudgeFall
+                                self.infos[i].fall["last_up_frame"]
+                                and self.infos[i].fall["last_down_frame"]
+                                and self.infos[i].fall["last_up_frame"] < self.infos[i].fall["last_down_frame"]
+                                and self.infos[i].fall["last_down_frame"] - self.infos[i].fall["last_up_frame"] < self.JudgeFall
                             ):
                                 self.infos[i].fall["isFall"] = True
                             else:
@@ -207,7 +211,7 @@ class PredictStream:
 
             # 如果没有此姿态
             if not isUpdata:
-                self.infos.append(self.Info(posture=self.postures_dir[cls][1], box_fall=box, frame_while=self.frame_count, frame_last=1))
+                self.infos.append(self.Info(posture=self.postures_dir[cls][1], box_postureDetection=box, frame_while=self.frame_count, frame_last=1))
 
         print("After update_info_postures:")
         self.print_infos()
@@ -251,7 +255,7 @@ class PredictStream:
         clss_face = results_face[0].boxes.cls.cpu().tolist()
 
         # 初始化facenet模型
-        facenet_model = facenet()
+        facenet_model = FaceNet()
 
         # 读取目标人脸,检测人脸
         info_faces = []
@@ -271,7 +275,7 @@ class PredictStream:
                 for i in os.listdir("Data/goals"):
                     goal_face = Image.open(f"Data/goals/{i}")
                     probability = facenet_model.detect_image(goal_face, face)
-                    if probability < self.face_match:
+                    if probability < self.RightProbability:
                         plot_names[face_id] = i[:-4]
                         isAddFaces = True
                         break

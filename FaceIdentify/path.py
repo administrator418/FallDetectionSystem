@@ -1,2 +1,2 @@
 casia_path = "/kaggle/input/casia-webface/casia-webface"
-lfw_path = "/kaggle/input/dataset-lfw/lfw"
+lfw_path = "/Users/jayden/Library/CloudStorage/OneDrive-jaydentang/Datasets/lfw"

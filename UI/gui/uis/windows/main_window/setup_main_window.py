@@ -206,6 +206,150 @@ class SetupMainWindow:
         
         self.btn_stream_end.clicked.connect(self.btn_clicked)
 
+        # 测试模式页
+        # 模型选择标题
+        self.line_edit_model_title = PyLineEdit(
+            text = "",
+            place_holder_text = "Model Selection",
+            radius = 8,
+            border_size = 2,
+            color = self.themes["app_color"]["text_foreground"],
+            selection_color = self.themes["app_color"]["white"],
+            bg_color = self.themes["app_color"]["dark_one"],
+            bg_color_active = self.themes["app_color"]["dark_three"],
+            context_color = self.themes["app_color"]["context_color"],
+            readonly=True
+        )
+        self.line_edit_model_title.setMinimumHeight(30)
+        self.ui.load_pages.model_title_layout.addWidget(self.line_edit_model_title)
+
+        # 模型标题
+        self.line_edit_model_1 = PyLineEdit(
+            text = "",
+            place_holder_text = "Face Detection Model",
+            radius = 8,
+            border_size = 2,
+            color = self.themes["app_color"]["text_foreground"],
+            selection_color = self.themes["app_color"]["white"],
+            bg_color = self.themes["app_color"]["dark_one"],
+            bg_color_active = self.themes["app_color"]["dark_three"],
+            context_color = self.themes["app_color"]["context_color"],
+            readonly=True
+        )
+        self.line_edit_model_1.setMinimumHeight(30)
+        self.ui.load_pages.model_1_layout.addWidget(self.line_edit_model_1)
+
+        self.line_edit_model_2 = PyLineEdit(
+            text = "",
+            place_holder_text = "Poseture Detection Model",
+            radius = 8,
+            border_size = 2,
+            color = self.themes["app_color"]["text_foreground"],
+            selection_color = self.themes["app_color"]["white"],
+            bg_color = self.themes["app_color"]["dark_one"],
+            bg_color_active = self.themes["app_color"]["dark_three"],
+            context_color = self.themes["app_color"]["context_color"],
+            readonly=True
+        )
+        self.line_edit_model_2.setMinimumHeight(30)
+        self.ui.load_pages.model_2_layout.addWidget(self.line_edit_model_2)
+
+        self.line_edit_model_3 = PyLineEdit(
+            text = "",
+            place_holder_text = "Face Identify Model",
+            radius = 8,
+            border_size = 2,
+            color = self.themes["app_color"]["text_foreground"],
+            selection_color = self.themes["app_color"]["white"],
+            bg_color = self.themes["app_color"]["dark_one"],
+            bg_color_active = self.themes["app_color"]["dark_three"],
+            context_color = self.themes["app_color"]["context_color"],
+            readonly=True
+        )
+        self.line_edit_model_3.setMinimumHeight(30)
+        self.ui.load_pages.model_3_layout.addWidget(self.line_edit_model_3)
+
+        # 模型选择按钮
+        self.btn_model_1 = PyToggle(
+            width = 50,
+            bg_color = self.themes["app_color"]["dark_two"],
+            circle_color = self.themes["app_color"]["icon_color"],
+            active_color = self.themes["app_color"]["context_color"]
+        )
+        self.ui.load_pages.btn_model_1_layout.addWidget(self.btn_model_1)
+
+        self.btn_model_2 = PyToggle(
+            width = 50,
+            bg_color = self.themes["app_color"]["dark_two"],
+            circle_color = self.themes["app_color"]["icon_color"],
+            active_color = self.themes["app_color"]["context_color"]
+        )
+        self.ui.load_pages.btn_model_2_layout.addWidget(self.btn_model_2)
+
+        self.btn_model_3 = PyToggle(
+            width = 50,
+            bg_color = self.themes["app_color"]["dark_two"],
+            circle_color = self.themes["app_color"]["icon_color"],
+            active_color = self.themes["app_color"]["context_color"]
+        )
+        self.ui.load_pages.btn_model_3_layout.addWidget(self.btn_model_3)
+
+        # 路径选择标题
+        self.line_edit_path_title = PyLineEdit(
+            text = "",
+            place_holder_text = "Path Selection",
+            radius = 8,
+            border_size = 2,
+            color = self.themes["app_color"]["text_foreground"],
+            selection_color = self.themes["app_color"]["white"],
+            bg_color = self.themes["app_color"]["dark_one"],
+            bg_color_active = self.themes["app_color"]["dark_three"],
+            context_color = self.themes["app_color"]["context_color"],
+            readonly=True
+        )
+        self.line_edit_path_title.setMinimumHeight(30)
+        self.ui.load_pages.path_title_layout.addWidget(self.line_edit_path_title)
+
+        # 路径输入框
+        self.line_edit_path = PyLineEdit(
+            text = "",
+            place_holder_text = "Please select the file path...",
+            radius = 8,
+            border_size = 2,
+            color = self.themes["app_color"]["text_foreground"],
+            selection_color = self.themes["app_color"]["white"],
+            bg_color = self.themes["app_color"]["dark_one"],
+            bg_color_active = self.themes["app_color"]["dark_three"],
+            context_color = self.themes["app_color"]["context_color"],
+            readonly=True
+        )
+        self.line_edit_path.setMinimumHeight(30)
+        self.ui.load_pages.path_line_edit_layout.addWidget(self.line_edit_path)
+
+        # 路径选择按钮
+        self.btn_path_select = PyPushButton(
+            text="...",
+            radius=8,
+            color=self.themes["app_color"]["text_foreground"],
+            bg_color=self.themes["app_color"]["dark_one"],
+            bg_color_hover=self.themes["app_color"]["dark_three"],
+            bg_color_pressed=self.themes["app_color"]["dark_four"]
+        )
+        self.btn_path_select.setMaximumHeight(30)
+        self.ui.load_pages.btn_path_layout.addWidget(self.btn_path_select)
+        
+        # 开始测试安妮家
+        self.btn_files_start = PyPushButton(
+            text="Start",
+            radius=8,
+            color=self.themes["app_color"]["text_foreground"],
+            bg_color=self.themes["app_color"]["dark_one"],
+            bg_color_hover=self.themes["app_color"]["dark_three"],
+            bg_color_pressed=self.themes["app_color"]["dark_four"]
+        )
+        self.btn_files_start.setMaximumHeight(30)
+        self.ui.load_pages.btn_files_start_layout.addWidget(self.btn_files_start)
+
         # ///////////////////////////////////////////////////////////////
         # 结束自定义小部件
         # ///////////////////////////////////////////////////////////////

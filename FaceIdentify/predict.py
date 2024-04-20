@@ -1,24 +1,17 @@
 from PIL import Image
+from .nets.facenet import FaceNet
 
-from .nets.facenet import facenet
 
-if __name__ == "__main__":
-    model = facenet()
+def predict(image_test_path, image_goals_path):
+    RightProbability = 1.2
 
-    while True:
-        image_1 = input("Input image_1 filename:")
-        try:
-            image_1 = Image.open(image_1)
-        except:
-            print("Image_1 Open Error! Try again!")
-            continue
+    model = FaceNet()
 
-        image_2 = input("Input image_2 filename:")
-        try:
-            image_2 = Image.open(image_2)
-        except:
-            print("Image_2 Open Error! Try again!")
-            continue
-
-        probability = model.detect_image(image_1, image_2)
-        print(probability)
+    image_test = Image.open(image_test_path)
+    for image_goal in image_goals_path:
+        image_goal = Image.open(image_goal)
+        probability = model.detect_image(image_test, image_goal)
+        if probability < RightProbability:
+            return True
+        else:
+            return False

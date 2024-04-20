@@ -32,7 +32,7 @@
    <item>
     <widget class="QStackedWidget" name="pages">
      <property name="currentIndex">
-      <number>1</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="page_welcome">
       <property name="styleSheet">
@@ -210,12 +210,96 @@
       </layout>
      </widget>
      <widget class="QWidget" name="page_files">
-      <property name="styleSheet">
-       <string notr="true">
-            QFrame { font-size: 16pt; }
-       </string>
-      </property>
-      <layout class="QVBoxLayout" name="page_3_layout"/>
+      <layout class="QGridLayout" name="page_3_layout">
+       <property name="margin" stdset="0">
+        <number>5</number>
+       </property>
+       <property name="spacing">
+        <number>5</number>
+       </property>
+       <item row="0" column="0" colspan="6">
+        <layout class="QVBoxLayout" name="model_title_layout"/>
+       </item>
+       <item row="1" column="0">
+        <layout class="QVBoxLayout" name="model_1_layout"/>
+       </item>
+       <item row="1" column="1">
+        <layout class="QVBoxLayout" name="btn_model_1_layout"/>
+       </item>
+       <item row="1" column="2">
+        <layout class="QVBoxLayout" name="model_2_layout"/>
+       </item>
+       <item row="1" column="3">
+        <layout class="QVBoxLayout" name="btn_model_2_layout"/>
+       </item>
+       <item row="1" column="4">
+        <layout class="QVBoxLayout" name="model_3_layout"/>
+       </item>
+       <item row="1" column="5">
+        <layout class="QVBoxLayout" name="btn_model_3_layout"/>
+       </item>
+       <item row="2" column="0" colspan="6">
+        <layout class="QVBoxLayout" name="path_title_layout"/>
+       </item>
+       <item row="3" column="0" colspan="5">
+        <layout class="QVBoxLayout" name="path_line_edit_layout"/>
+       </item>
+       <item row="3" column="5">
+        <widget class="QWidget" name="btn_path" native="true">
+         <property name="minimumSize">
+          <size>
+           <width>0</width>
+           <height>40</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>16777215</width>
+           <height>40</height>
+          </size>
+         </property>
+         <layout class="QVBoxLayout" name="btn_path_layout">
+          <property name="spacing">
+           <number>0</number>
+          </property>
+          <property name="margin" stdset="0">
+           <number>0</number>
+          </property>
+         </layout>
+        </widget>
+       </item>
+       <item row="4" column="0" colspan="6">
+        <widget class="QLabel" name="label_files">
+         <property name="text">
+          <string/>
+         </property>
+        </widget>
+       </item>
+       <item row="5" column="0" colspan="6">
+        <widget class="QWidget" name="btn_files_start" native="true">
+         <property name="minimumSize">
+          <size>
+           <width>0</width>
+           <height>40</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>16777215</width>
+           <height>40</height>
+          </size>
+         </property>
+         <layout class="QVBoxLayout" name="btn_files_start_layout">
+          <property name="spacing">
+           <number>0</number>
+          </property>
+          <property name="margin" stdset="0">
+           <number>0</number>
+          </property>
+         </layout>
+        </widget>
+       </item>
+      </layout>
      </widget>
     </widget>
    </item>

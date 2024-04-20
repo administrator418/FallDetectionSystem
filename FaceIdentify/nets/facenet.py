@@ -8,7 +8,7 @@ from FaceIdentify.nets.mobelnet import mobilenet
 from FaceIdentify.utils.utils import preprocess_input, resize_image, show_config
 
 
-class facenet(nn.Module):
+class FaceNet(nn.Module):
     def __init__(
         self,
         dropout_keep_prob=0.5,
@@ -17,7 +17,7 @@ class facenet(nn.Module):
         mode="train",
         pretrained=False,
     ):
-        super(facenet, self).__init__()
+        super(FaceNet, self).__init__()
         self.backbone = mobilenet(pretrained)
         flat_shape = 1024
         self.avg = nn.AdaptiveAvgPool2d((1, 1))
@@ -75,7 +75,7 @@ class facenet(object):
         #   训练好后logs文件夹下存在多个权值文件，选择验证集损失较低的即可。
         #   验证集损失较低不代表准确度较高，仅代表该权值在验证集上泛化性能较好。
         #--------------------------------------------------------------------------#
-        "model_path"    : "model_data/facenet_mobilenet.pth",
+        "model_path"    : "FaceIdentify/facenet_mobilenet.pth",
         #--------------------------------------------------------------------------#
         #   输入图片的大小。
         #--------------------------------------------------------------------------#
@@ -120,7 +120,7 @@ class facenet(object):
         #---------------------------------------------------#
         print('Loading weights into state dict...')
         device      = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-        self.net    = facenet(backbone=self.backbone, mode="predict").eval()
+        self.net    = facenet(mode="predict").eval()
         self.net.load_state_dict(torch.load(self.model_path, map_location=device), strict=False)
         print('{} model loaded.'.format(self.model_path))
 

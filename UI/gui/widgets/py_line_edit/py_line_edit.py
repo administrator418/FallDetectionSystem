@@ -35,7 +35,8 @@ class PyLineEdit(QLineEdit):
         selection_color = "#FFF",
         bg_color = "#333",
         bg_color_active = "#222",
-        context_color = "#00ABE8"
+        context_color = "#00ABE8",
+        readonly = False
     ):
         super().__init__()
 
@@ -55,6 +56,10 @@ class PyLineEdit(QLineEdit):
             bg_color_active,
             context_color
         )
+
+        # 是否只读
+        if readonly:
+            self.setReadOnly(True)
 
     # 设置样式表
     def set_stylesheet(
