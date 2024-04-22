@@ -1,6 +1,7 @@
 from UI.gui.uis.windows.main_window.functions_main_window import *
 import sys
 import os
+import cv2
 from PySide6.QtCore import *
 from PySide6.QtGui import *
 from PySide6.QtWidgets import *
@@ -8,7 +9,7 @@ from PySide6.QtSvgWidgets import *
 from UI.gui.core.json_settings import Settings
 from UI.gui.uis.windows.main_window import *
 from UI.gui.widgets import *
-from ModelPredict.predict_stream import PredictStream
+from ModelPredict.predict import Predict
 
 # 调整 dpi
 # ///////////////////////////////////////////////////////////////
@@ -44,6 +45,8 @@ class MainWindow(QMainWindow):
         # ///////////////////////////////////////////////////////////////
         self.stream_thread = MainWindow.StreamThread(self)
         self.stream_thread.new_frame.connect(self.update_image_display)
+        self.file_type = "stream"
+        self.test = None
 
         # 显示主界面
         # ///////////////////////////////////////////////////////////////
@@ -56,25 +59,54 @@ class MainWindow(QMainWindow):
         def __init__(self, parent=None):
             super(MainWindow.StreamThread, self).__init__(parent)
             self.active = False
+            self.file_type = "stream"
+            self.test = None
 
         def run(self):
-            with PredictStream() as predict_stream:
-                while self.active:
-                    im0 = predict_stream.return_frame()
-                    if im0 is None:
-                        self.quit()  # 优雅地结束线程
-                        break
+            with Predict() as predict_stream:
+                if self.file_type == "stream":
+                    while self.active:
+                        im0 = predict_stream.return_im0(file_type=self.file_type, test=self.test)
+
+                        if im0 is None:
+                            self.quit()  # 优雅地结束线程
+                            break
+                        height, width, channels = im0.shape
+                        bytes_per_line = channels * width
+                        q_img = QImage(im0.data, width, height, bytes_per_line, QImage.Format_RGB888)
+                        self.new_frame.emit(q_img)
+                    
+                elif self.file_type == "image":
+                    im0 = predict_stream.return_im0(file_type=self.file_type, test=self.test)
                     height, width, channels = im0.shape
                     bytes_per_line = channels * width
                     q_img = QImage(im0.data, width, height, bytes_per_line, QImage.Format_RGB888)
-                    self.new_frame.emit(q_img)
+                    self.new_frame.emit(q_img)  
 
+                elif self.file_type == "video":
+                    cap = cv2.VideoCapture(self.test)
+
+                    while cap.isOpened():
+                        ret, im0 = cap.read()
+                        if not ret:
+                            break # 读取完毕
+                        im0 = predict_stream.return_im0(file_type=self.file_type, test=im0)
+
+                        height, width, channels = im0.shape
+                        bytes_per_line = channels * width
+                        q_img = QImage(im0.data, width, height, bytes_per_line, QImage.Format_RGB888)
+                        self.new_frame.emit(q_img)
+                    cap.release()
     # 更新图像显示
     # ///////////////////////////////////////////////////////////////
     def update_image_display(self, q_img):
         pixmap = QPixmap.fromImage(q_img)
-        self.ui.load_pages.label_stream.setPixmap(pixmap)
-        self.ui.load_pages.label_stream.setAlignment(Qt.AlignCenter)
+        if self.file_type == "stream":
+            self.ui.load_pages.label_stream.setPixmap(pixmap)
+            self.ui.load_pages.label_stream.setAlignment(Qt.AlignCenter)
+        elif self.file_type in ["image", "video"]:
+            self.ui.load_pages.label_files.setPixmap(pixmap)
+            self.ui.load_pages.label_files.setAlignment(Qt.AlignCenter)
 
     # 当按钮被点击时运行函数
     # 通过对象名称/按钮ID检查功能
@@ -162,8 +194,11 @@ class MainWindow(QMainWindow):
         # 标题栏菜单
         # ///////////////////////////////////////////////////////////////
         
+        # 主页面
+        # ///////////////////////////////////////////////////////////////
         # 摄像头模式页按钮
         if btn.objectName() == "btn_stream_start":
+            self.file_type = "stream"
             self.stream_thread.active = True
             self.stream_thread.start()
         
@@ -171,6 +206,26 @@ class MainWindow(QMainWindow):
             self.stream_thread.active = False
             self.stream_thread.wait()
             self.ui.load_pages.label_stream.clear()
+
+        # 文件测试模式页按钮
+        if btn.objectName() == "btn_files_start":
+            if (
+                self.line_edit_path.text().endswith(".jpg")
+                or self.line_edit_path.text().endswith(".png")
+                or self.line_edit_path.text().endswith(".jpeg")
+            ):
+                self.file_type = "image"
+            elif (
+                self.line_edit_path.text().endswith(".mp4")
+                or self.line_edit_path.text().endswith(".avi")
+                or self.line_edit_path.text().endswith(".mov")
+            ):
+                self.file_type = "video"
+            self.test = self.line_edit_path.text()
+            self.stream_thread.active = True
+            self.stream_thread.file_type = self.file_type
+            self.stream_thread.test = self.test
+            self.stream_thread.start()
 
         # 测试
         # print(f"Button {btn.objectName()}, clicked!")

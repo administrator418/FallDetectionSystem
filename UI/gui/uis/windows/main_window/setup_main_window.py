@@ -326,7 +326,7 @@ class SetupMainWindow:
         )
         self.line_edit_path.setMinimumHeight(30)
         self.ui.load_pages.path_line_edit_layout.addWidget(self.line_edit_path)
-
+        
         # 路径选择按钮
         self.btn_path_select = PyPushButton(
             text="...",
@@ -350,6 +350,10 @@ class SetupMainWindow:
         )
         self.btn_files_start.setMaximumHeight(30)
         self.ui.load_pages.btn_files_start_layout.addWidget(self.btn_files_start)
+
+        self.btn_files_start.setObjectName("btn_files_start")
+
+        self.btn_files_start.clicked.connect(self.btn_clicked)
 
         # ///////////////////////////////////////////////////////////////
         # 结束自定义小部件

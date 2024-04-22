@@ -12,7 +12,7 @@ from PIL import Image
 from FaceIdentify.nets.facenet import facenet_image
 
 
-class PredictStream:
+class Predict:
     # 人物信息类
     class Info:
         def __init__(
@@ -106,6 +106,9 @@ class PredictStream:
         # 判断两个点是否是同一个人的二维欧式距离比例(二维欧式距离: 一维欧式距离的平方)
         self.right_distance_2d_ratio = 0.05
 
+        # 测试模式文件类型
+        self.file_type = "stream"
+
     def send_email(self, i):
         message = MIMEMultipart()
         message["From"] = self.from_email
@@ -144,8 +147,6 @@ class PredictStream:
             cv2.imwrite(f"Data/goals_pre/face_{self.frame_count}.jpg", face)
 
     def update_info_face(self, info_faces, plot_names):
-        print("Before update_info_face:")
-        self.print_infos()
         # 判断是否为目标人脸
         for face in info_faces:
             # 与人物信息库匹配,如果匹配成功,更新信息
@@ -165,13 +166,9 @@ class PredictStream:
             if not isUpdate:
                 self.infos.append(self.Info(name=face.name, box_faceDetection=face.box_body, frame_while=self.frame_count))
 
-        print("After update_info_face:")
-        self.print_infos()
         return plot_names
 
     def update_info_postures(self, results):
-        print("Before update_info_postures:")
-        self.print_infos()
         results_fall = results["results_fall"]
         boxes = results_fall[0].boxes.xyxy.cpu().tolist()
         clss = results_fall[0].boxes.cls.cpu().tolist()
@@ -212,9 +209,6 @@ class PredictStream:
             # 如果没有此姿态
             if not isUpdata:
                 self.infos.append(self.Info(posture=self.postures_dir[cls][1], box_postureDetection=box, frame_while=self.frame_count, frame_last=1))
-
-        print("After update_info_postures:")
-        self.print_infos()
 
     def return_distance_1d(self, box_1, box_2):
         point_1 = np.array([(box_1[0] + box_1[2]) / 2, (box_1[1] + box_1[3]) / 2])
@@ -356,21 +350,35 @@ class PredictStream:
                     f"isAlarm: {info.isAlarm}"
                 )
 
-    def return_frame(self):
+    def return_im0(self, file_type="stream", test=None):
+        self.file_type = file_type
         # 从摄像头获取视频流
-        self.cap = cv2.VideoCapture(self.capture_index)
-        assert self.cap.isOpened()
+        if file_type == "stream":
+            self.cap = cv2.VideoCapture(self.capture_index)
+            assert self.cap.isOpened()
 
-        # 设置摄像头参数
-        self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
-        self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
+            # 设置摄像头参数
+            self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
+            self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
+        
+            # 读取视频帧,返回ret(布尔值,表示帧是否被成功读取)和im0(BGR三维数组,视频帧本身)
+            ret, im0 = self.cap.read()
+            assert ret
 
+        # 读取图片
+        elif file_type == "image":
+            im0 = cv2.imread(test)
+            assert im0 is not None
+
+        # 读取视频中的帧
+        elif file_type == "video":
+            im0 = test
+            
+        # 转化为RGB格式
+        im0 = cv2.cvtColor(im0, cv2.COLOR_BGR2RGB)
+        
         # 记录系统运行开始时间
         self.time_cycle_start = time.time()
-
-        # 读取视频帧,返回ret(布尔值,表示帧是否被成功读取)和im0(BGR三维数组,视频帧本身)
-        ret, im0 = self.cap.read()
-        assert ret
 
         # 记录帧数
         self.frame_count += 1
@@ -390,9 +398,6 @@ class PredictStream:
         # 显示FPS
         self.display_fps(im0)
 
-        # 转化为RGB格式
-        im0 = cv2.cvtColor(im0, cv2.COLOR_BGR2RGB)
-
         # 返回视频帧
         return im0
 
@@ -400,7 +405,9 @@ class PredictStream:
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):   
-        # 释放摄像头,关闭邮件服务器
-        self.cap.release()
+        if self.file_type == "stream":
+            self.cap.release()
+        
+        # 关闭邮件服务器
         self.server.quit()
         print("Exit!")
