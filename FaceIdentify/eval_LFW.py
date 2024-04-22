@@ -1,7 +1,7 @@
 import torch
 import torch.backends.cudnn as cudnn
 
-from nets.facenet import FaceNet
+from nets.facenet import facenet
 from utils.dataloader import LFWDataset
 from utils.utils_metrics import test
 
@@ -40,7 +40,7 @@ if __name__ == "__main__":
     test_loader = torch.utils.data.DataLoader(
         LFWDataset(dir=lfw_dir_path, pairs_path=lfw_pairs_path, image_size=input_shape), batch_size=batch_size, shuffle=False)
 
-    model = FaceNet(mode="predict")
+    model = facenet(mode="predict")
 
     print('Loading weights into state dict...')
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')

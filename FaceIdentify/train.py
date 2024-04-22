@@ -8,7 +8,7 @@ import torch.distributed as dist
 import torch.optim as optim
 from torch.utils.data import DataLoader
 
-from nets.facenet import FaceNet
+from nets.facenet import facenet
 from utils.callback import LossHistory
 from utils.dataloader import FaceNetDataset, LFWDataset, dataset_collate
 from utils.utils import get_num_classes, seed_everything, show_config, worker_init_fn
@@ -294,7 +294,7 @@ if __name__ == "__main__":
     # ---------------------------------#
     #   载入模型并加载预训练权重
     # ---------------------------------#
-    model = FaceNet(num_classes=num_classes, pretrained=pretrained)
+    model = facenet(num_classes=num_classes, pretrained=pretrained)
 
     if model_path != "":
         # ------------------------------------------------------#
