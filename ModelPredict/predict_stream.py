@@ -9,7 +9,7 @@ import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from PIL import Image
-from FaceIdentify.nets.facenet import facenet
+from FaceIdentify.nets.facenet import facenet_image
 
 
 class PredictStream:
@@ -20,8 +20,8 @@ class PredictStream:
                 posture="posture",
                 box_faceDetection=[],
                 box_postureDetection=[],
-                frame_while=None,
-                frame_last=None,
+                frame_while=-1,
+                frame_last=-1,
                 fall={
                     "last_up_frame": None,
                     "last_down_frame": None,
@@ -39,7 +39,7 @@ class PredictStream:
             self.isAlarm = isAlarm
 
     # 人物人脸信息类
-    class InfoFace:
+    class InfoFaceNBody:
         def __init__(self, name="name", box_face=[], box_body=[]):
             self.name = name
             self.box_face = box_face
@@ -151,12 +151,12 @@ class PredictStream:
             # 与人物信息库匹配,如果匹配成功,更新信息
             isUpdate = False
             for j in range(len(self.infos)):
-                box_base = self.infos[j].box_face
-                if box_base == [] and self.infos[j].box_fall != []:
-                    box_base = self.infos[j].box_fall
+                box_base = self.infos[j].box_faceDetection
+                if box_base == [] and self.infos[j].box_postureDetection != []:
+                    box_base = self.infos[j].box_postureDetection
                 if self.judge_distance_2d_byBox(face.box_body, box_base):
                     self.infos[j].name = face.name
-                    self.infos[j].box_face = face.box_body
+                    self.infos[j].box_faceDetection = face.box_body
                     self.infos[j].frame_while = self.frame_count
                     isUpdate = True
                     break
@@ -183,9 +183,9 @@ class PredictStream:
             # 如果有此姿态,直接更新
             isUpdata = False
             for i in range(len(self.infos)):
-                box_base = self.infos[i].box_fall
-                if box_base == [] and self.infos[i].box_face != []:
-                    box_base = self.infos[i].box_face
+                box_base = self.infos[i].box_postureDetection
+                if box_base == [] and self.infos[i].box_faceDetection != []:
+                    box_base = self.infos[i].box_faceDetection
                 isRight = self.judge_distance_2d_byBox(box, box_base)
                 if isRight:
                     if self.infos[i].posture == self.postures_dir[cls][1]:
@@ -205,7 +205,7 @@ class PredictStream:
                                 self.infos[i].fall["isFall"] = False
                         self.infos[i].posture = self.postures_dir[cls][1]
                         self.infos[i].frame_last = 1
-                    self.infos[i].box_fall = box
+                    self.infos[i].box_postureDetection = box
                     self.infos[i].frame_while = self.frame_count
                     isUpdata = True
 
@@ -255,7 +255,7 @@ class PredictStream:
         clss_face = results_face[0].boxes.cls.cpu().tolist()
 
         # 初始化facenet模型
-        facenet_model = facenet()
+        facenet_model = facenet_image()
 
         # 读取目标人脸,检测人脸
         info_faces = []
@@ -287,7 +287,7 @@ class PredictStream:
                 plot_clss.append(face_id)
 
                 # 写入info_faces
-                info_faces_face.append(self.InfoFace(name=plot_names[face_id], box_face=box))
+                info_faces_face.append(self.InfoFaceNBody(name=plot_names[face_id], box_face=box))
 
                 face_id += 1
 
@@ -296,14 +296,14 @@ class PredictStream:
 
             elif cls == 0.0:
                 # 写入info_faces
-                info_faces_body.append(self.InfoFace(box_body=box))
+                info_faces_body.append(self.InfoFaceNBody(box_body=box))
 
         # 匹配人脸与人物信息
         for if_face in info_faces_face:
             for if_body in info_faces_body:
                 distance_1d = self.return_distance_1d(if_face.box_face, if_body.box_body)
                 if self.judge_distance_2d_byDistance(distance_1d, if_body.box_body):
-                    info_faces.append(self.InfoFace(name=if_face.name, box_face=if_face.box_face, box_body=if_body.box_body))
+                    info_faces.append(self.InfoFaceNBody(name=if_face.name, box_face=if_face.box_face, box_body=if_body.box_body))
                     break
 
         # 更新人物信息
@@ -330,8 +330,8 @@ class PredictStream:
 
         # 判断是否有人跌倒
         for i in range(len(self.infos)):
-            if not self.infos[i].isSendEmail and self.infos[i].fall["isFall"]:
-                self.infos[i].isSendEmail = True
+            if not self.infos[i].isAlarm and self.infos[i].fall["isFall"]:
+                self.infos[i].isAlarm = True
                 self.send_email(i)
 
     def clean(self):
@@ -348,12 +348,12 @@ class PredictStream:
                 print(
                     f"name: {info.name}, "
                     f"posture: {info.posture}, "
-                    f"box_face: {info.box_face}, "
-                    f"box_fall: {info.box_fall}, "
+                    f"box_faceDetection: {info.box_faceDetection}, "
+                    f"box_postureDetection: {info.box_postureDetection}, "
                     f"frame_while: {info.frame_while}, "
                     f"frame_last: {info.frame_last}, "
                     f"fall: {info.fall}, "
-                    f"isSendEmail: {info.isSendEmail}"
+                    f"isAlarm: {info.isAlarm}"
                 )
 
     def return_frame(self):

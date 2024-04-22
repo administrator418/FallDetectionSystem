@@ -1,29 +1,19 @@
 import os
 from PIL import Image
 from ultralytics import YOLO
-from FaceIdentify.nets.facenet import facenet
+from FaceIdentify.nets.facenet import facenet_image
 
-class PredictImage:
+class PredictImageOVideo:
     def __init__(
             self,
-            testspath, goalspath="Data/goals",
-            model_face_detection=False,
-            model_fall_detection=False,
-            model_face_indentify=False,
-            goals_path="Data/goals"
+            testspath,
+            goalspath="Data/goals"
         ):
-        self.modelspath = {
-            "fall_detection": "ModelPredict/yolov8_fall.pt",
-            "face_detection": "ModelPredict/yolov8_face.pt",
-            "face_indentify": "ModelPredict/facenet_mobilenet.pth"
-        }
+
         self.testspath = testspath
         self.goalspath = goalspath
-        self.model_face_detection = model_face_detection
-        self.model_fall_detection = model_fall_detection
-        self.model_face_indentify = model_face_indentify
-        self.goals_path = goals_path
-
+        
+        self.ImageOVideo = None
         self.right_distance_2d_ratio = 0.05
     
     def set_testspath(self, testspath):
@@ -31,6 +21,12 @@ class PredictImage:
     
     def set_goalspath(self, goalspath):
         self.goalspath = goalspath
+
+    def set_ImageOVideo(self):
+        if self.testspath.endswith(".jpg") or self.testspath.endswith(".png"):
+            self.ImageOVideo = "Image"
+        elif self.testspath.endswith(".mp4") or self.testspath.endswith(".avi"):
+            self.ImageOVideo = "Video"
     
     def image_detection_predict(self, model_type):
         # 导入模型
@@ -49,7 +45,7 @@ class PredictImage:
         return results
     
     def image_identify_predict(self):
-        model = facenet()
+        model = facenet_image()
 
         test = Image.open(self.testspath)
 

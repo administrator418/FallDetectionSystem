@@ -206,6 +206,7 @@ class SetupMainWindow:
         
         self.btn_stream_end.clicked.connect(self.btn_clicked)
 
+        """ 
         # 测试模式页
         # 模型选择标题
         self.line_edit_model_title = PyLineEdit(
@@ -293,7 +294,8 @@ class SetupMainWindow:
             active_color = self.themes["app_color"]["context_color"]
         )
         self.ui.load_pages.btn_model_3_layout.addWidget(self.btn_model_3)
-
+        """
+        
         # 路径选择标题
         self.line_edit_path_title = PyLineEdit(
             text = "",

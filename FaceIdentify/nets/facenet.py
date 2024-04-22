@@ -8,7 +8,7 @@ from FaceIdentify.nets.mobelnet import mobilenet
 from FaceIdentify.utils.utils import preprocess_input, resize_image, show_config
 
 
-class FaceNet(nn.Module):
+class facenet(nn.Module):
     def __init__(
         self,
         dropout_keep_prob=0.5,
@@ -17,7 +17,7 @@ class FaceNet(nn.Module):
         mode="train",
         pretrained=False,
     ):
-        super(FaceNet, self).__init__()
+        super(facenet, self).__init__()
         self.backbone = mobilenet(pretrained)
         flat_shape = 1024
         self.avg = nn.AdaptiveAvgPool2d((1, 1))
@@ -68,7 +68,7 @@ class FaceNet(nn.Module):
 #   使用自己训练好的模型预测需要修改2个参数
 #   model_path和backbone需要修改！
 #--------------------------------------------#
-class facenet(object):
+class facenet_image(object):
     _defaults = {
         #--------------------------------------------------------------------------#
         #   使用自己训练好的模型进行预测要修改model_path，指向logs文件夹下的权值文件
@@ -92,7 +92,7 @@ class facenet(object):
         #   是否使用Cuda
         #   没有GPU可以设置成False
         #-------------------------------------------#
-        "cuda"              : True,
+        "cuda"              : False,
         #-------------------------------------------#
         #   判断是否是同一个人的阈值
         #-------------------------------------------#

@@ -32,7 +32,7 @@
    <item>
     <widget class="QStackedWidget" name="pages">
      <property name="currentIndex">
-      <number>0</number>
+      <number>2</number>
      </property>
      <widget class="QWidget" name="page_welcome">
       <property name="styleSheet">
@@ -218,33 +218,12 @@
         <number>5</number>
        </property>
        <item row="0" column="0" colspan="6">
-        <layout class="QVBoxLayout" name="model_title_layout"/>
-       </item>
-       <item row="1" column="0">
-        <layout class="QVBoxLayout" name="model_1_layout"/>
-       </item>
-       <item row="1" column="1">
-        <layout class="QVBoxLayout" name="btn_model_1_layout"/>
-       </item>
-       <item row="1" column="2">
-        <layout class="QVBoxLayout" name="model_2_layout"/>
-       </item>
-       <item row="1" column="3">
-        <layout class="QVBoxLayout" name="btn_model_2_layout"/>
-       </item>
-       <item row="1" column="4">
-        <layout class="QVBoxLayout" name="model_3_layout"/>
-       </item>
-       <item row="1" column="5">
-        <layout class="QVBoxLayout" name="btn_model_3_layout"/>
-       </item>
-       <item row="2" column="0" colspan="6">
         <layout class="QVBoxLayout" name="path_title_layout"/>
        </item>
-       <item row="3" column="0" colspan="5">
+       <item row="1" column="0" colspan="5">
         <layout class="QVBoxLayout" name="path_line_edit_layout"/>
        </item>
-       <item row="3" column="5">
+       <item row="1" column="5">
         <widget class="QWidget" name="btn_path" native="true">
          <property name="minimumSize">
           <size>
@@ -268,14 +247,14 @@
          </layout>
         </widget>
        </item>
-       <item row="4" column="0" colspan="6">
+       <item row="2" column="0" colspan="6">
         <widget class="QLabel" name="label_files">
          <property name="text">
           <string/>
          </property>
         </widget>
        </item>
-       <item row="5" column="0" colspan="6">
+       <item row="3" column="0" colspan="6">
         <widget class="QWidget" name="btn_files_start" native="true">
          <property name="minimumSize">
           <size>

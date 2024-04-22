@@ -109,50 +109,15 @@ class Ui_MainPages(object):
         self.page_3_layout.setSpacing(5)
         self.page_3_layout.setContentsMargins(5, 5, 5, 5)
         self.page_3_layout.setObjectName(u"page_3_layout")
-        self.model_title_layout = QVBoxLayout()
-        self.model_title_layout.setObjectName(u"model_title_layout")
-
-        self.page_3_layout.addLayout(self.model_title_layout, 0, 0, 1, 6)
-
-        self.model_1_layout = QVBoxLayout()
-        self.model_1_layout.setObjectName(u"model_1_layout")
-
-        self.page_3_layout.addLayout(self.model_1_layout, 1, 0, 1, 1)
-
-        self.btn_model_1_layout = QVBoxLayout()
-        self.btn_model_1_layout.setObjectName(u"btn_model_1_layout")
-
-        self.page_3_layout.addLayout(self.btn_model_1_layout, 1, 1, 1, 1)
-
-        self.model_2_layout = QVBoxLayout()
-        self.model_2_layout.setObjectName(u"model_2_layout")
-
-        self.page_3_layout.addLayout(self.model_2_layout, 1, 2, 1, 1)
-
-        self.btn_model_2_layout = QVBoxLayout()
-        self.btn_model_2_layout.setObjectName(u"btn_model_2_layout")
-
-        self.page_3_layout.addLayout(self.btn_model_2_layout, 1, 3, 1, 1)
-
-        self.model_3_layout = QVBoxLayout()
-        self.model_3_layout.setObjectName(u"model_3_layout")
-
-        self.page_3_layout.addLayout(self.model_3_layout, 1, 4, 1, 1)
-
-        self.btn_model_3_layout = QVBoxLayout()
-        self.btn_model_3_layout.setObjectName(u"btn_model_3_layout")
-
-        self.page_3_layout.addLayout(self.btn_model_3_layout, 1, 5, 1, 1)
-
         self.path_title_layout = QVBoxLayout()
         self.path_title_layout.setObjectName(u"path_title_layout")
 
-        self.page_3_layout.addLayout(self.path_title_layout, 2, 0, 1, 6)
+        self.page_3_layout.addLayout(self.path_title_layout, 0, 0, 1, 6)
 
         self.path_line_edit_layout = QVBoxLayout()
         self.path_line_edit_layout.setObjectName(u"path_line_edit_layout")
 
-        self.page_3_layout.addLayout(self.path_line_edit_layout, 3, 0, 1, 5)
+        self.page_3_layout.addLayout(self.path_line_edit_layout, 1, 0, 1, 5)
 
         self.btn_path = QWidget(self.page_files)
         self.btn_path.setObjectName(u"btn_path")
@@ -163,12 +128,12 @@ class Ui_MainPages(object):
         self.btn_path_layout.setContentsMargins(0, 0, 0, 0)
         self.btn_path_layout.setObjectName(u"btn_path_layout")
 
-        self.page_3_layout.addWidget(self.btn_path, 3, 5, 1, 1)
+        self.page_3_layout.addWidget(self.btn_path, 1, 5, 1, 1)
 
         self.label_files = QLabel(self.page_files)
         self.label_files.setObjectName(u"label_files")
 
-        self.page_3_layout.addWidget(self.label_files, 4, 0, 1, 6)
+        self.page_3_layout.addWidget(self.label_files, 2, 0, 1, 6)
 
         self.btn_files_start = QWidget(self.page_files)
         self.btn_files_start.setObjectName(u"btn_files_start")
@@ -179,7 +144,7 @@ class Ui_MainPages(object):
         self.btn_files_start_layout.setContentsMargins(0, 0, 0, 0)
         self.btn_files_start_layout.setObjectName(u"btn_files_start_layout")
 
-        self.page_3_layout.addWidget(self.btn_files_start, 5, 0, 1, 6)
+        self.page_3_layout.addWidget(self.btn_files_start, 3, 0, 1, 6)
 
         self.pages.addWidget(self.page_files)
 
@@ -188,7 +153,7 @@ class Ui_MainPages(object):
 
         self.retranslateUi(MainPages)
 
-        self.pages.setCurrentIndex(0)
+        self.pages.setCurrentIndex(2)
 
 
         QMetaObject.connectSlotsByName(MainPages)
