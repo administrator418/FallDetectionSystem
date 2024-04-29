@@ -96,7 +96,7 @@ class facenet_image(object):
         #-------------------------------------------#
         #   判断是否是同一个人的阈值
         #-------------------------------------------#
-        "isSamePerson"      : 0.5,
+        "isSamePerson"      : 3, # 0.85
     }
 
     @classmethod
@@ -161,6 +161,7 @@ class facenet_image(object):
             #   计算二者之间的距离
             #---------------------------------------------------#
             l1 = np.linalg.norm(output1 - output2, axis=1)
+            # print(l1)
         
         if l1 > self.isSamePerson:
             return False

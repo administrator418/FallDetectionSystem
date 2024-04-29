@@ -91,10 +91,24 @@ class MainWindow(QMainWindow):
                         if not ret:
                             break # 读取完毕
                         im0 = predict_stream.return_im0(file_type=self.file_type, test=im0)
-
                         height, width, channels = im0.shape
-                        bytes_per_line = channels * width
-                        q_img = QImage(im0.data, width, height, bytes_per_line, QImage.Format_RGB888)
+
+                        # 设置最大宽度和高度
+                        max_width = 640
+                        max_height = 480
+
+                        # 计算等比例缩放因子
+                        scale = min(max_width / width, max_height / height)
+
+                        # 新的尺寸
+                        new_width = int(width * scale)
+                        new_height = int(height * scale)
+
+                        # 缩放图像
+                        im0 = cv2.resize(im0, (new_width, new_height), interpolation=cv2.INTER_AREA)
+    
+                        bytes_per_line = channels * new_width
+                        q_img = QImage(im0.data, new_width, new_height, bytes_per_line, QImage.Format_RGB888)
                         self.new_frame.emit(q_img)
                     cap.release()
     # 更新图像显示

@@ -1,0 +1,4 @@
+{
+    "support_cap_resolutions":[[640, 480], [1280, 720]],
+    "cap_resolutions":[640, 480]
+}

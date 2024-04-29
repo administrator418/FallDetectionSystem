@@ -10,6 +10,8 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from PIL import Image
 from FaceIdentify.nets.facenet import facenet_image
+from json_settings import Settings
+from MedicalInformation import get_medical_informations
 
 
 class Predict:
@@ -82,9 +84,6 @@ class Predict:
         self.frame_count = 0
         self.fps = -1
 
-        # 人脸匹配值
-        self.RightProbability = 1.2
-
         # 人脸信息保存
         self.face_imwrite_step = 2
         self.face_imwrite_num = 0
@@ -109,6 +108,9 @@ class Predict:
         # 测试模式文件类型
         self.file_type = "stream"
 
+        # 导入外部设置
+        self.settings = Settings()
+
     def send_email(self, i):
         message = MIMEMultipart()
         message["From"] = self.from_email
@@ -117,10 +119,27 @@ class Predict:
         # 邮件主题
         message["Subject"] = "警告！"
 
+        # 查找医疗信息
+        medical_informations = get_medical_informations()
+        medical_information = None
+        for info in medical_informations:
+            if info.name == self.infos[i].name:
+                medical_information = info
+                break
+
         # 消息内容
         message_body = (
-            f"{self.infos[i].name}跌倒了！" 
-            + time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+            f"{self.infos[i].name}跌倒了!\n"
+            + "医疗信息卡:\n"
+            + "\t姓名: " + medical_information.name + "\n"
+            + "\t出生日期: " + medical_information.brithday + "\n"
+            + "\t血型: " + medical_information.blood_type + "\n"
+            + "\t紧急联系人: " + medical_information.phone_number + "\n"
+            + "\t健康状况: " + medical_information.health_conditions + "\n"
+            + "\t过敏信息: " + medical_information.allergy_information + "\n"
+            + "\t当前用药: " + medical_information.current_medications + "\n"
+            + "\t手术史或重大医疗事件: " + medical_information.history_surgeries_N_medical_events + "\n"
+            + "时间: " + time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
             )
 
         message.attach(MIMEText(message_body, "plain"))
@@ -262,6 +281,8 @@ class Predict:
                 # 获得人脸信息,格式为BGR三维数组
                 face = im0[int(box[1]) : int(box[3]), int(box[0]) : int(box[2])]
                 face = cv2.cvtColor(face, cv2.COLOR_BGR2RGB)
+                # # 保存一些人脸图片
+                # self.imwrite_face(face)
                 face = Image.fromarray(np.uint8(face))
 
                 # 与目标人脸库匹配,写入plot_names
@@ -269,7 +290,7 @@ class Predict:
                 for i in os.listdir("Data/goals"):
                     goal_face = Image.open(f"Data/goals/{i}")
                     probability = facenet_model.detect_image(goal_face, face)
-                    if probability < self.RightProbability:
+                    if probability == True:
                         plot_names[face_id] = i[:-4]
                         isAddFaces = True
                         break
@@ -284,9 +305,6 @@ class Predict:
                 info_faces_face.append(self.InfoFaceNBody(name=plot_names[face_id], box_face=box))
 
                 face_id += 1
-
-                # # 保存一些人脸图片
-                # self.imwrite_face(face)
 
             elif cls == 0.0:
                 # 写入info_faces
@@ -358,8 +376,8 @@ class Predict:
             assert self.cap.isOpened()
 
             # 设置摄像头参数
-            self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
-            self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
+            self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, self.settings.items["cap_resolutions"][0])
+            self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, self.settings.items["cap_resolutions"][1])
         
             # 读取视频帧,返回ret(布尔值,表示帧是否被成功读取)和im0(BGR三维数组,视频帧本身)
             ret, im0 = self.cap.read()
