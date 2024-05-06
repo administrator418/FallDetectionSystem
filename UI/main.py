@@ -222,6 +222,10 @@ class MainWindow(QMainWindow):
             self.ui.load_pages.label_stream.clear()
 
         # 文件测试模式页按钮
+        if btn.objectName() == "btn_path_select":
+            file_path, _ = QFileDialog.getOpenFileName(self, "Open File", "", "Image Files (*.jpg *.png *.jpeg);;Video Files (*.mp4 *.avi *.mov)")
+            self.line_edit_path.setText(file_path)
+
         if btn.objectName() == "btn_files_start":
             if (
                 self.line_edit_path.text().endswith(".jpg")

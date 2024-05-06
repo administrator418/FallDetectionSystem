@@ -338,6 +338,10 @@ class SetupMainWindow:
         )
         self.btn_path_select.setMaximumHeight(30)
         self.ui.load_pages.btn_path_layout.addWidget(self.btn_path_select)
+
+        self.btn_path_select.setObjectName("btn_path_select")
+
+        self.btn_path_select.clicked.connect(self.btn_clicked)
         
         # 开始测试按钮
         self.btn_files_start = PyPushButton(
