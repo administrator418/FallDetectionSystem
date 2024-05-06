@@ -81,7 +81,8 @@ class MainWindow(QMainWindow):
                     height, width, channels = im0.shape
                     bytes_per_line = channels * width
                     q_img = QImage(im0.data, width, height, bytes_per_line, QImage.Format_RGB888)
-                    self.new_frame.emit(q_img)  
+                    scaled_img = q_img.scaled(640, 480, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+                    self.new_frame.emit(scaled_img)  
 
                 elif self.file_type == "video":
                     cap = cv2.VideoCapture(self.test)
