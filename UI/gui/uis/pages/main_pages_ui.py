@@ -3,7 +3,7 @@
 ################################################################################
 ## Form generated from reading UI file 'main_pages.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.4.1
+## Created by: Qt User Interface Compiler version 6.6.3
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
@@ -144,7 +144,18 @@ class Ui_MainPages(object):
         self.btn_files_start_layout.setContentsMargins(0, 0, 0, 0)
         self.btn_files_start_layout.setObjectName(u"btn_files_start_layout")
 
-        self.page_3_layout.addWidget(self.btn_files_start, 3, 0, 1, 6)
+        self.page_3_layout.addWidget(self.btn_files_start, 3, 0, 1, 3)
+
+        self.btn_files_end = QWidget(self.page_files)
+        self.btn_files_end.setObjectName(u"btn_files_end")
+        self.btn_files_end.setMinimumSize(QSize(0, 40))
+        self.btn_files_end.setMaximumSize(QSize(16777215, 40))
+        self.btn_files_end_layout = QVBoxLayout(self.btn_files_end)
+        self.btn_files_end_layout.setSpacing(0)
+        self.btn_files_end_layout.setContentsMargins(0, 0, 0, 0)
+        self.btn_files_end_layout.setObjectName(u"btn_files_end_layout")
+
+        self.page_3_layout.addWidget(self.btn_files_end, 3, 3, 1, 3)
 
         self.pages.addWidget(self.page_files)
 

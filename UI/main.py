@@ -41,12 +41,19 @@ class MainWindow(QMainWindow):
         self.hide_grips = True # 是否隐藏调整手柄
         SetupMainWindow.setup_gui(self)
 
+        # 设置系统模式
+        # ///////////////////////////////////////////////////////////////
+        self.file_type = None
+        
         # 设置摄像头模式帧处理线程
         # ///////////////////////////////////////////////////////////////
         self.stream_thread = MainWindow.StreamThread(self)
         self.stream_thread.new_frame.connect(self.update_image_display)
-        self.file_type = "stream"
-        self.test = None
+
+        # 设置测试模式帧处理线程
+        # ///////////////////////////////////////////////////////////////
+        self.test_thread = MainWindow.TestThread(self)
+        self.test_thread.new_frame.connect(self.update_image_display)
 
         # 显示主界面
         # ///////////////////////////////////////////////////////////////
@@ -59,59 +66,71 @@ class MainWindow(QMainWindow):
         def __init__(self, parent=None):
             super(MainWindow.StreamThread, self).__init__(parent)
             self.active = False
-            self.file_type = "stream"
             self.test = None
 
         def run(self):
             with Predict() as predict_stream:
-                if self.file_type == "stream":
-                    while self.active:
-                        im0 = predict_stream.return_im0(file_type=self.file_type, test=self.test)
+                while self.active:
+                    im0 = predict_stream.return_im0(file_type="stream", test=self.test)
 
-                        if im0 is None:
-                            self.quit()  # 优雅地结束线程
-                            break
-                        height, width, channels = im0.shape
-                        bytes_per_line = channels * width
-                        q_img = QImage(im0.data, width, height, bytes_per_line, QImage.Format_RGB888)
-                        self.new_frame.emit(q_img)
-                    
-                elif self.file_type == "image":
-                    im0 = predict_stream.return_im0(file_type=self.file_type, test=self.test)
+                    if im0 is None:
+                        self.quit()  # 优雅地结束线程
+                        break
                     height, width, channels = im0.shape
                     bytes_per_line = channels * width
                     q_img = QImage(im0.data, width, height, bytes_per_line, QImage.Format_RGB888)
-                    scaled_img = q_img.scaled(640, 480, Qt.KeepAspectRatio, Qt.SmoothTransformation)
-                    self.new_frame.emit(scaled_img)  
+                    self.new_frame.emit(q_img)
+                    
+    # 测试模式帧处理线程
+    class TestThread(QThread):
+        new_frame = Signal(QImage)
 
-                elif self.file_type == "video":
-                    cap = cv2.VideoCapture(self.test)
+        def __init__(self, parent=None):
+            super(MainWindow.TestThread, self).__init__(parent)
+            self.active = False
+            self.file_type = None
+            self.test = None
 
-                    while cap.isOpened():
-                        ret, im0 = cap.read()
-                        if not ret:
-                            break # 读取完毕
-                        im0 = predict_stream.return_im0(file_type=self.file_type, test=im0)
+        def run(self):
+            with Predict() as predict_stream:
+                while self.active:
+                    if self.file_type == "image":
+                        im0 = predict_stream.return_im0(file_type=self.file_type, test=self.test)
                         height, width, channels = im0.shape
+                        bytes_per_line = channels * width
+                        q_img = QImage(im0.data, width, height, bytes_per_line, QImage.Format_RGB888)
+                        scaled_img = q_img.scaled(640, 480, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+                        self.new_frame.emit(scaled_img)
 
-                        # 设置最大宽度和高度
-                        max_width = 640
-                        max_height = 480
+                    elif self.file_type == "video":
+                        cap = cv2.VideoCapture(self.test)
 
-                        # 计算等比例缩放因子
-                        scale = min(max_width / width, max_height / height)
+                        while cap.isOpened() and self.active:
+                            ret, im0 = cap.read()
+                            if not ret:
+                                break # 读取完毕
+                            im0 = predict_stream.return_im0(file_type=self.file_type, test=im0)
+                            height, width, channels = im0.shape
 
-                        # 新的尺寸
-                        new_width = int(width * scale)
-                        new_height = int(height * scale)
+                            # 设置最大宽度和高度
+                            max_width = 640
+                            max_height = 480
 
-                        # 缩放图像
-                        im0 = cv2.resize(im0, (new_width, new_height), interpolation=cv2.INTER_AREA)
-    
-                        bytes_per_line = channels * new_width
-                        q_img = QImage(im0.data, new_width, new_height, bytes_per_line, QImage.Format_RGB888)
-                        self.new_frame.emit(q_img)
-                    cap.release()
+                            # 计算等比例缩放因子
+                            scale = min(max_width / width, max_height / height)
+
+                            # 新的尺寸
+                            new_width = int(width * scale)
+                            new_height = int(height * scale)
+
+                            # 缩放图像
+                            im0 = cv2.resize(im0, (new_width, new_height), interpolation=cv2.INTER_AREA)
+        
+                            bytes_per_line = channels * new_width
+                            q_img = QImage(im0.data, new_width, new_height, bytes_per_line, QImage.Format_RGB888)
+                            self.new_frame.emit(q_img)
+                        cap.release()
+
     # 更新图像显示
     # ///////////////////////////////////////////////////////////////
     def update_image_display(self, q_img):
@@ -218,6 +237,7 @@ class MainWindow(QMainWindow):
             self.stream_thread.start()
         
         if btn.objectName() == "btn_stream_end":
+            self.file_type = None
             self.stream_thread.active = False
             self.stream_thread.wait()
             self.ui.load_pages.label_stream.clear()
@@ -241,10 +261,16 @@ class MainWindow(QMainWindow):
             ):
                 self.file_type = "video"
             self.test = self.line_edit_path.text()
-            self.stream_thread.active = True
-            self.stream_thread.file_type = self.file_type
-            self.stream_thread.test = self.test
-            self.stream_thread.start()
+            self.test_thread.active = True
+            self.test_thread.file_type = self.file_type
+            self.test_thread.test = self.test
+            self.test_thread.start()
+        
+        if btn.objectName() == "btn_files_end":
+            self.file_type = None
+            self.test_thread.active = False
+            self.test_thread.wait()
+            self.ui.load_pages.label_files.clear()
 
         # 测试
         # print(f"Button {btn.objectName()}, clicked!")
