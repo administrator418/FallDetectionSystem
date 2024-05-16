@@ -1,5 +1,6 @@
 import json
 import os
+import re
 
 # 应用程序设置
 # ///////////////////////////////////////////////////////////////
@@ -35,5 +36,8 @@ class Settings(object):
     def deserialize(self):
         # 读JSON文件
         with open(self.settings_path, "r", encoding='utf-8') as reader:
-            settings = json.loads(reader.read())
+            content = reader.read()
+            # 删除注释
+            content_no_comments = re.sub(r'\/\/.*', '', content)
+            settings = json.loads(content_no_comments)
             self.items = settings

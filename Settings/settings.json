@@ -32,6 +32,6 @@
         "title_size" : 10,
         "text_size" : 9
     },
-    "support_cap_resolutions":[[640, 480], [1280, 720]],
+    // 设置分辨率,支持的分辨率有[640, 480], [1280, 720]
     "cap_resolutions":[640, 480]
 }
