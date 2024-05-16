@@ -6,6 +6,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from FaceIdentify.nets.mobelnet import mobilenet
 from FaceIdentify.utils.utils import preprocess_input, resize_image, show_config
+from Settings.json_settings import Settings
 
 
 class facenet(nn.Module):
@@ -93,10 +94,6 @@ class facenet_image(object):
         #   没有GPU可以设置成False
         #-------------------------------------------#
         "cuda"              : False,
-        #-------------------------------------------#
-        #   判断是否是同一个人的阈值
-        #-------------------------------------------#
-        "isSamePerson"      : 0.85,
     }
 
     @classmethod
@@ -110,6 +107,9 @@ class facenet_image(object):
     #   初始化facenet
     #---------------------------------------------------#
     def __init__(self, **kwargs):
+        settings = Settings()
+        self.settings = settings.items
+
         self.__dict__.update(self._defaults)
         for name, value in kwargs.items():
             setattr(self, name, value)
@@ -163,7 +163,7 @@ class facenet_image(object):
             l1 = np.linalg.norm(output1 - output2, axis=1)
             # print(l1)
         
-        if l1 > self.isSamePerson:
+        if l1 > self.settings['isSamePerson']:
             return False
         else:
             return True
