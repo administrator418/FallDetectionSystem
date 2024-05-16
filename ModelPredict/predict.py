@@ -109,7 +109,8 @@ class Predict:
         self.file_type = "stream"
 
         # 导入外部设置
-        self.settings = Settings()
+        settings = Settings()
+        self.settings = settings.items
 
     def send_email(self, i):
         message = MIMEMultipart()
@@ -128,19 +129,25 @@ class Predict:
                 break
 
         # 消息内容
-        message_body = (
-            f"{self.infos[i].name}跌倒了!\n"
-            + "医疗信息卡:\n"
-            + "\t姓名: " + medical_information.name + "\n"
-            + "\t出生日期: " + medical_information.brithday + "\n"
-            + "\t血型: " + medical_information.blood_type + "\n"
-            + "\t紧急联系人: " + medical_information.phone_number + "\n"
-            + "\t健康状况: " + medical_information.health_conditions + "\n"
-            + "\t过敏信息: " + medical_information.allergy_information + "\n"
-            + "\t当前用药: " + medical_information.current_medications + "\n"
-            + "\t手术史或重大医疗事件: " + medical_information.history_surgeries_N_medical_events + "\n"
-            + "时间: " + time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
-            )
+        if self.infos[i].name != "name":
+            message_body = (
+                f"{self.infos[i].name}跌倒了!\n"
+                + "医疗信息卡:\n"
+                + "\t姓名: " + medical_information.name + "\n"
+                + "\t出生日期: " + medical_information.brithday + "\n"
+                + "\t血型: " + medical_information.blood_type + "\n"
+                + "\t紧急联系人: " + medical_information.phone_number + "\n"
+                + "\t健康状况: " + medical_information.health_conditions + "\n"
+                + "\t过敏信息: " + medical_information.allergy_information + "\n"
+                + "\t当前用药: " + medical_information.current_medications + "\n"
+                + "\t手术史或重大医疗事件: " + medical_information.history_surgeries_N_medical_events + "\n"
+                + "时间: " + time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+                )
+        else:
+            message_body = (
+                f"有人跌倒了!\n"
+                + "时间: " + time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+                )
 
         message.attach(MIMEText(message_body, "plain"))
         self.server.sendmail(self.from_email, self.to_email, message.as_string())
@@ -281,8 +288,10 @@ class Predict:
                 # 获得人脸信息,格式为BGR三维数组
                 face = im0[int(box[1]) : int(box[3]), int(box[0]) : int(box[2])]
                 face = cv2.cvtColor(face, cv2.COLOR_BGR2RGB)
-                # # 保存一些人脸图片
-                # self.imwrite_face(face)
+                face = cv2.resize(face, (160, 190))
+                # 保存一些人脸图片
+                if self.settings["save_face_image"]:
+                    self.imwrite_face(face)
                 face = Image.fromarray(np.uint8(face))
 
                 # 与目标人脸库匹配,写入plot_names
@@ -376,8 +385,8 @@ class Predict:
             assert self.cap.isOpened()
 
             # 设置摄像头参数
-            self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, self.settings.items["cap_resolutions"][0])
-            self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, self.settings.items["cap_resolutions"][1])
+            self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, self.settings["cap_resolutions"][0])
+            self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, self.settings["cap_resolutions"][1])
         
             # 读取视频帧,返回ret(布尔值,表示帧是否被成功读取)和im0(BGR三维数组,视频帧本身)
             ret, im0 = self.cap.read()

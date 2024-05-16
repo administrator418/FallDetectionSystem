@@ -37,5 +37,8 @@
     "cap_resolutions" : [640, 480],
     
     // 判断是否是同一个人的阈值
-    "isSamePerson" : 0.85
+    "isSamePerson" : 0.85,
+
+    // 是否保存人脸图片
+    "save_face_image" : true
 }
