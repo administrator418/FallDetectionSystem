@@ -1,6 +1,6 @@
 import json
 import os
-from UI.gui.core.json_settings import Settings
+from Settings.json_settings import Settings
 
 # 应用程序主题
 # ///////////////////////////////////////////////////////////////

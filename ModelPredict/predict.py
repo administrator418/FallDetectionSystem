@@ -10,8 +10,8 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from PIL import Image
 from FaceIdentify.nets.facenet import facenet_image
-from json_settings import Settings
-from MedicalInformation import get_medical_informations
+from Settings.json_settings import Settings
+from MedicalInformation.MedicalInformation import get_medical_informations
 
 
 class Predict:

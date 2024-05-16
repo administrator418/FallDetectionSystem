@@ -6,7 +6,7 @@ import os
 class Settings(object):
     # 应用程序路径
     # ///////////////////////////////////////////////////////////////
-    json_file = "settings.json"
+    json_file = "Settings/settings.json"
     app_path = os.path.abspath(os.getcwd())
     settings_path = os.path.normpath(os.path.join(app_path, json_file))
     if not os.path.isfile(settings_path):

@@ -6,7 +6,7 @@ from PySide6.QtCore import *
 from PySide6.QtGui import *
 from PySide6.QtWidgets import *
 from PySide6.QtSvgWidgets import *
-from UI.gui.core.json_settings import Settings
+from Settings.json_settings import Settings
 from UI.gui.uis.windows.main_window import *
 from UI.gui.widgets import *
 from ModelPredict.predict import Predict

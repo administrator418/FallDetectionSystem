@@ -3,7 +3,7 @@ from PySide6.QtGui import *
 from PySide6.QtWidgets import *
 from PySide6.QtSvgWidgets import *
 from UI.gui.core.functions import *
-from UI.gui.core.json_settings import Settings
+from Settings.json_settings import Settings
 from .py_div import PyDiv
 from .py_title_button import PyTitleButton
 
