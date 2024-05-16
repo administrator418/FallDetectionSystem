@@ -288,7 +288,7 @@ class Predict:
                 # 获得人脸信息,格式为BGR三维数组
                 face = im0[int(box[1]) : int(box[3]), int(box[0]) : int(box[2])]
                 face = cv2.cvtColor(face, cv2.COLOR_BGR2RGB)
-                face = cv2.resize(face, (160, 190))
+                face = cv2.resize(face, self.settings["face_resolutions"])
                 # 保存一些人脸图片
                 if self.settings["save_face_image"]:
                     self.imwrite_face(face)

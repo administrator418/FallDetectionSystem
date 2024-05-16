@@ -40,5 +40,8 @@
     "isSamePerson" : 0.85,
 
     // 是否保存人脸图片
-    "save_face_image" : true
+    "save_face_image" : false,
+
+    // 人脸分辨率
+    "face_resolutions" : [150, 190]
 }
